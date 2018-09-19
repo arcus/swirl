@@ -1,0 +1,354 @@
+- Class: meta
+  Course: Clinical Data in R
+  Lesson: Examining Clinical Data
+  Author: Joy Payton
+  Type: Standard
+  Organization: Children's Hospital of Philadelphia, Arcus Program
+  Version: 2.4.3
+
+- Class: video
+  Output: Before we get started, would you be willing to take a very brief
+    Pre-Course Survey?  It will open in a new browser window.  It would be a huge help
+    for the course author!
+  VideoLink: https://redcap.chop.edu/surveys/?s=JWYW8HPHER
+
+- Class: text
+  Output: |-
+    Thanks for taking the "Examining Clinical Data" lesson as part of 
+    the "Clinical Data in R" swirl course.  In this 
+    lesson, we'll talk about how to look at clinical data in order to understand
+    your data quality.  It's helpful if you've used R before, but it's not required.
+
+    This lesson should take about 30 minutes to complete, and
+    at the end I'll invite you to take a < 5 minute survey about how you liked the
+    lesson.  Hit enter to keep going!
+
+    When I ask you to enter something, it's always good if you type it out yourself, 
+    rather than copy-paste, because it will help you remember.  But if you do choose to copy-paste,
+    be careful not to include any of the | symbols at the far left of the text.  That's 
+    just swirl's way of printing its text and making it clear that you're still in the lesson.
+    
+- Class: text
+  Output: If you've never used swirl, it's simple!  When you see a prompt with three dots, 
+    that's your invitation to hit enter to continue.  Do that now.
+    
+- Class: mult_question
+  Output: If I ask you a multiple choice question, you should enter the number before the 
+    answer you choose.  For example, which one of these is a fruit?
+  AnswerChoices: Plum;Needle;Wallet
+  CorrectAnswer: Plum
+  AnswerTests: omnitest(correctVal='Plum')
+    
+- Class: cmd_question
+  Output: If you see a triangle prompt like this > it means you're supposed to enter a 
+    command.  I'll start off by giving you exactly what to type, and as you learn,
+    I'll reduce the hints I give and ask you to construct the right command for 
+    what you want to accomplish.  For example, type print("hello world") below.
+  CorrectAnswer: print("hello world")
+  AnswerTests: omnitest(correctExpr='print("hello world")')
+
+- Class: text
+  Output:  You can skip questions you're having
+    difficulty with by typing skip(), and you can leave this lesson entirely by
+    typing bye() or hitting escape.  
+
+- Class: text
+  Output: In this lesson, we will examine fabricated clinical data. 
+    You will work with data that looks like the same kind of data you 
+    might get from a query of CHOP's EHR.
+
+- Class: text
+  Output: Again, it's very important to point out that this is not 
+    *deidentified* data, but rather completely *fabricated* data.  
+    Got it?  Good!
+
+- Class: text
+  Output: First, we'll start with how you get data into R.  Often, how this happens is that
+    you're given a .csv that contains clinical data, and you bring that data into R's
+    environment by using the read.csv() command.  
+
+- Class: text
+  Output: Let's assume that's the case -- you have a couple of .csvs to bring into R.  You 
+    have them saved in a directory somewhere on your computer.  How do you tell R where
+    your files are and what to do with them?
+
+- Class: text
+  Output: Let's start with file location.  When you start up R, R begins in a "working 
+    directory."  You can see where R's working directory is by typing getwd(), or you
+    can change the working directory by using setwd("whatever/your/new/path/definition/is").
+
+- Class: cmd_question
+  Output: Ask R to print the current working directory by entering getwd() at the prompt below.
+  CorrectAnswer: getwd()
+  AnswerTests: omnitest(correctExpr='getwd()')
+  Hint: Just copy / paste or type the command getwd()!
+
+- Class: text
+  Output: In our thought experiment, we imagined that you have some .csv files locally on your
+    computer, and now you know where R is starting from -- its working directory.  
+    That means that you can figure out the "path" -- the directions for R to find 
+    the .csv files you want.
+
+- Class: text
+  Output: In computing, we can use what are called "relative" paths -- paths that start from
+    where "you" are, which can change.  For example, the path to my toothbrush at home
+    is "go to the bathroom, open the medicine cabinet, it's on the right at the bottom."
+    But those directions don't work for me when I change locations, like when I'm at work.
+    The work bathroom doesn't have a medicine cabinet, and doesn't have my toothbrush.
+
+- Class: text
+  Output: Similarly, let's say that within R's working directory, there's another directory
+    called "Downloads", and within that, a file called "phone_nums.csv".  A relative path from R's
+    working directory to that file might be "Downloads/phone_nums.csv".  But that relative path 
+    wouldn't be helpful if you were in a totally different directory up a couple of levels,
+    because there, there's no "Downloads" directory to go to, much less a file inside called "phone_nums.csv"!
+
+- Class: text
+  Output: We can also use "absolute" or "fully qualified" paths, which are complete and the same no matter 
+    what the reference point is.  The absolute path to my toothbrush could include my 
+    street address, the floor information about where the bathroom is, and so forth.
+    I could use that info to find my way to my toothbrush no matter where I was.
+
+- Class: text
+  Output: Same goes for computing.  My computer can to find its way to every file and folder
+    by traversing the file system from the root all the way into all of the branches that make
+    up various directories and subdirectories.  For example, maybe
+    the absolute path (which, since I'm in a Mac, will start with a forward slash) might be
+    "/Users/paytonk/Downloads/phone_nums.csv").
+
+- Class: text
+  Output: Understanding paths is pretty important when you're working with files in a 
+    programming environment.  There are some details that depend on what kind of system
+    you're using (Mac? Linux? Windows?), and it goes outside the scope of this course
+    to teach how to navigate file systems.
+
+- Class: text
+  Output: The important thing for you to know is that when you tell R about a file, you
+    need to be sure that R can follow the path you give it.  If you use a relative path,
+    you need to know what the starting point is (R's working directory) so you can
+    give the correct path.  If you use an absolute path, that's probably better -- but it can
+    be much more typing!
+
+- Class: cmd_question
+  Output: In order to make things simpler, I've loaded the absolute path to a .csv I want you to
+    load into the variable "my_file_path". Display that now by entering my_file_path at the 
+    prompt below.
+  CorrectAnswer: my_file_path
+  AnswerTests: omnitest(correctExpr='my_file_path')
+  Hint: Just copy and paste my_file_path!
+
+- Class: text
+  Output: Now that you have the file path for our fabricated demographic data, we can
+    use read.csv() to pull that data into our environment.  In the next exercise, we're
+    going to use read.csv() as well as the assignment arrow (<-) to bring in some data
+    and make it a data frame (a kind of table in R) with the name "demographics".
+
+- Class: cmd_question
+  Output: 'Please issue this command: demographics <- read.csv(my_file_path)'
+  CorrectAnswer: demographics <- demographics <- read.csv(my_file_path)
+  AnswerTests: omnitest(correctExpr='demographics <- read.csv(my_file_path)')
+  Hint: You can copy/paste or type in the command above!
+
+
+- Class: text
+  Output: Now you have the object "demographics" in your environment.  
+    Next, we'll take a closer look.
+
+- Class: cmd_question
+  Output: Take a quick peek at what the structure of the data is by 
+    typing str(demographics) in the prompt below.
+  CorrectAnswer: str(demographics)
+  AnswerTests: omnitest(correctExpr='str(demographics)')
+
+- Class: mult_question
+  Output: How many variables in demographics have the type "int" (integer)?
+  AnswerChoices: 3 variable; 4 variables; 5 variables; 6 variables
+  CorrectAnswer: 4 variables
+  AnswerTests: omnitest(correctVal='4 variables')
+  Hint: Take a look at the output from str(demographics).  The name of the variable is followed by its variable type!
+
+- Class: text
+  Output: You might have noticed that the PAT_DOB field shows up as a "factor".  
+    That's because R brought it in as a string of characters.  Many times, in research, 
+    character strings are a category (like "male" and "female", or "case" and "control").  
+    So R assumes that this is also a category, and treats the date string as a factor, 
+    or category.  That's not what we want!
+
+- Class: text
+  Output: There are two ways to fix this.  First, we could bring the data in directly 
+    without changing any character strings to factors at all, using a special parameter
+    in the read.csv() command.  Let's try this approach first.
+
+- Class: cmd_question
+  Output: |-
+    Create a new object called demographics_strings by issuing this command: 
+    
+    demographics_strings <- read.csv(my_file_path, stringsAsFactors = FALSE)
+  CorrectAnswer: demographics_strings <- read.csv(my_file_path, stringsAsFactors = FALSE)
+  AnswerTests: omnitest(correctExpr='demographics_strings <- read.csv(my_file_path, stringsAsFactors = FALSE)')
+  Hint:  Don't include the | character, that's just swirl doing its thing.
+
+- Class: cmd_question
+  Output: Now, use the str() command to examine demographics_strings!
+  CorrectAnswer: str(demographics_strings)
+  AnswerTests: omnitest(correctExpr='str(demographics_strings)')
+  Hint: Type str( # the name of the object you want to examine)
+
+- Class: text
+  Output: Great!  Notice how now, instead of factors, we have character strings.  
+    There's another way to fix columns (variables) that should be strings 
+    instead of factors.  Let's try this second approach!
+
+- Class: cmd_question
+  Output: |-
+    In our original demographics object, fix the dob column by issuing this command, 
+    which replaces the column with a manipulated version of the same column: 
+    
+    demographics$PAT_DOB <- as.character(demographics$PAT_DOB)
+  CorrectAnswer: demographics$PAT_DOB <- as.character(demographics$PAT_DOB)
+  AnswerTests: omnitest(correctExpr='demographics$PAT_DOB <- as.character(demographics$PAT_DOB)')
+  Hint: 
+
+- Class: cmd_question
+  Output: Now, check out the demographics data frame (there's a bit of vocab 
+    for you!) by issuing the str() command one more time, this time looking 
+    at demographics!
+  CorrectAnswer: str(demographics)
+  AnswerTests: omnitest(correctExpr='str(demographics)')
+  Hint: 
+
+- Class: text
+  Output: For now, we can leave date as a character string.  In a later lesson, 
+    we'll talk about making date fields in R, so that we can do things like 
+    calculate ages, durations, etc.
+
+- Class: cmd_question
+  Output: Take a quick peek at the first few lines of the data by typing 
+    head(demographics).
+  CorrectAnswer: head(demographics)
+  AnswerTests: omnitest(correctExpr='head(demographics)')
+  Hint: 
+
+- Class: text
+  Output: See those "NA" entries?  That represents missing data.  I wonder how 
+    much missing data there is?
+
+- Class: cmd_question
+  Output: Take a look at the summary statistics for the demographics data by 
+    typing summary(demographics)
+  CorrectAnswer: summary(demographics)
+  AnswerTests: omnitest(correctExpr='summary(demographics)')
+  Hint: 
+
+- Class: mult_question
+  Output: Which variable has the most missing data?
+  AnswerChoices: PAT_MRN;PAT_DOB;RACE;ETHNICITY;SEX
+  CorrectAnswer: RACE
+  AnswerTests: omnitest(correctVal='RACE')
+  Hint: Look at the NA's line in your summary output!
+
+- Class: mult_question
+  Output: What could cause missing data?
+  AnswerChoices: A patient or subject doesn't provide an answer;The person preparing the data made an error;None of the answers available applied to the patient;Conflicting data in various sources;All of these!
+  CorrectAnswer: All of these!
+  AnswerTests: omnitest(correctVal='All of these!')
+  Hint: 
+
+- Class: text
+  Output: That's right, missing data could come about because of multiple 
+    reasons.  Maybe a child is intersex, so the two answers available didn't 
+    apply.  Or maybe the family didn't supply race or ethnicity information, 
+    or gave conflicting information.  Perhaps the person preparing your data 
+    slipped up, or maybe a clinician forgot to make a measurement or input 
+    it into the chart!
+
+- Class: text
+  Output: You many notice that the summary command treated anything that looked 
+    like a single number as numeric, even though some of your data is really 
+    categorical (like race and ethnicity).  It doesn't make sense to have an 
+    "average" or "median" sex or race, does it?  We can fix this in our next 
+    lesson, where we will make sure that the variable types all make sense.  
+    We can turn these number categories into factor variables.
+
+- Class: text
+  Output: What about a quick data breakdown?  Let's do some quick tables 
+    to see what our data looks like.
+
+- Class: cmd_question
+  Output: To see just one table showing discrete values, type 
+    table(variable_name).  For example, try typing 
+    table(demographics$ETHNICITY) below!
+  CorrectAnswer: table(demographics$ETHNICITY)
+  AnswerTests: omnitest(correctExpr='table(demographics$ETHNICITY)')
+  Hint: 
+
+
+- Class: cmd_question
+  Output: What's weird is that no NAs show up in our table.  Why is that?  Issue the ?table() 
+    command to find out more about table()  The help file will open in your help tab -- to the right of your console.
+  CorrectAnswer: ?table()
+  AnswerTests: omnitest(correctExpr='?table()')
+  Hint: Copy and Paste are your friends.
+
+- Class: text
+  Output: Oh, okay, we have to put a value in for useNA, if we want table() to also show us
+    the NA values.  We can use "ifany" to only display NA's if they exist, or "always"
+    to show how many NAs there are, even if there aren't any at all.
+
+- Class: cmd_question
+  Output: Now let's try using our new parameter, useNA.  Start with the last table() command you did for ethnicity,
+    but just before the closing parenthesis, add a comma and then
+    the parameter useNA = "ifany".  Here's a fun tip -- use the up arrow on your keyboard
+    to go through your recent commands, instead of copy/pasting or retyping!
+    
+  CorrectAnswer: table(demographics$ETHNICITY, useNA = "ifany")
+  AnswerTests: omnitest(correctExpr='table(demographics$ETHNICITY, useNA = "ifany")')
+  Hint: Did you put in a comma?  The inside of your table() command should be demographics$ETHNICITY, useNA = "ifany".
+
+
+- Class: cmd_question
+  Output: We can also do a "contingency table" that looks at two different 
+    categories.  The first parameter will give us rows, and the second will 
+    give us columns.  By the way, rows-then-columns is how much of R syntax 
+    is structured!  Let's take a peek at sex and race by entering 
+    table(demographics$SEX, demographics$RACE, useNA = "ifany") at the prompt below.
+  CorrectAnswer: table(demographics$SEX, demographics$RACE, useNA = "ifany")
+  AnswerTests: omnitest(correctExpr='table(demographics$SEX, demographics$RACE, useNA = "ifany")')
+  Hint: Just copy what I asked you to type in.
+
+- Class: cmd_question
+  Output: Finally, how can you look at a data frame and see all your data?  Try typing 
+    View(demographics) at the prompt below.  Capitalization counts!
+  CorrectAnswer: View(demographics)
+  AnswerTests: omnitest(correctExpr='View(demographics)')
+  Hint: Don't forget that "View" has a capital "V"!
+
+- Class: text
+  Output: |-
+    Great work!  This is what you've learned so far: 
+    
+    * how to find out what R's working directory is, and change it
+
+    * how to bring a .csv into your R environment using read.csv() 
+    
+    * how to look at the data using head() and View()
+    
+    * how to do some quick summary statistics using summary()
+    
+    * how to create tables using table()
+    
+    * how to look at help files using ?
+
+- Class: video
+  Output: Say "Yes" to open a quick survey (less than five minutes, I promise!) in your web browser. 
+    It's important to us at Arcus that we only provide good quality 
+    education that's helpful to you.  This survey gives us important metrics for
+    knowing what works and what doesn't.
+  VideoLink: https://redcap.chop.edu/surveys/?s=C3LNJTP4FT
+
+- Class: text
+  Output: In our next lesson, "Altering Clinical Data Types", we'll take a 
+    look at how to alter data types.  Congratulations on finishing 
+    "Examining Clinical Data"!
+
+

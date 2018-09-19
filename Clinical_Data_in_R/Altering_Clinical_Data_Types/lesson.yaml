@@ -1,0 +1,602 @@
+- Class: meta
+  Course: Clinical Data in R
+  Lesson: Altering Clinical Data Types
+  Author: Joy Payton
+  Type: Standard
+  Organization: Children's Hospital of Philadelphia, Arcus Program
+  Version: 2.4.3
+
+
+- Class: text
+  Output: |-
+    Thanks for taking the "Altering Clinical Data Types" lesson 
+    as part of the "Clinical Data in R" swirl course.  In this 
+    lesson, we'll talk about the different relationships between clinical 
+    data and why it's important that you understand them.  
+
+    This lesson should take about 45-60 minutes to complete, and
+    at the end I'll invite you to take a < 5 minute survey about how you liked the
+    lesson.  Hit enter to keep going!
+
+    When I ask you to enter something, it's always good if you type it out yourself, 
+    rather than copy-paste, because it will help you remember.  But if you do choose to copy-paste,
+    be careful not to include any of the | symbols at the far left of the text.  That's 
+    just swirl's way of printing its text and making it clear that you're still in the lesson.
+
+- Class: text
+  Output: If you've never used swirl, it's simple!  When you see a prompt with three dots, 
+    that's your invitation to hit enter to continue.  Do that now.
+    
+- Class: mult_question
+  Output: If I ask you a multiple choice question, you should enter the number before the 
+    answer you choose.  For example, which one of these is a fruit?
+  AnswerChoices: Grapefruit;Quill;Photo Album
+  CorrectAnswer: Grapefruit
+  AnswerTests: omnitest(correctVal='Grapefruit')
+    
+- Class: cmd_question
+  Output: If you see a triangle prompt like this > it means you're supposed to enter a 
+    command.  I'll start off by giving you exactly what to type, and as you learn,
+    I'll reduce the hints I give and ask you to construct the right command for 
+    what you want to accomplish.  For example, type "7*2" below.
+  CorrectAnswer: 7*2
+  AnswerTests: omnitest(correctExpr='7*2')
+
+- Class: text
+  Output:  You can skip questions you're having
+    difficulty with by typing skip(), and you can leave this lesson entirely by
+    typing bye() or hitting escape.  
+
+- Class: text
+  Output: In this lesson, we will examine fabricated clinical data. 
+    You will work with data that looks like the same kind of data you 
+    might get from a query of CHOP's EHR.
+
+- Class: text
+  Output: Again, it's very important to point out that this is not 
+    *deidentified* data, but rather completely *fabricated* data.  
+    Got it?  Good!
+
+- Class: text
+  Output: In the last lesson, you learned how to get .csv files containing
+    clinical data into R, as well as how to examine the data to get
+    a feel for the data quality and perhaps some insight into things
+    like data distributions and trends.
+
+- Class: text
+  Output: In this lesson we are going to take a closer look at data types, and
+    how to change them.  Let's take a quick look at the basic data types in R.
+
+- Class: text
+  Output: First off, we have two data types for numbers, integer and double.  Integer
+    data contains, well, integers -- positive, zero, and negative numbers
+    with no fractional parts.  -5, 0, and 19 are examples of data that can be
+    integer type.  
+
+- Class: text
+  Output: '"Double" or "num" data, on the other hand, contains 
+    numbers that do have a fractional part.  You may also know this kind of
+    data as a "float" or "floating point" variable type.'
+
+- Class: text
+  Output: Note that if you have integers and non-integer numbers together in a
+    vector, R will make them ALL into double, so that they share the same data type.
+
+- Class: cmd_question
+  Output: |-
+  
+    For example, what data type is the vector c(2, 3.5, 0, -3) ? 
+    
+    Aside: if the c() command is new to you, be prepared to see it often.  "c" here means
+    "concatenate", so that c(2, 3.5, 0, -3) is a concatenation (list) of values.
+  
+    You can find out by 
+    typing "typeof(c(2, 3.5, 0, -3))" below at the prompt.  Do so now.
+  CorrectAnswer: typeof(c(2, 3.5, 0, -3))
+  AnswerTests: omnitest(correctExpr='typeof(c(2, 3.5, 0, -3))')
+  Hint: Just copy and paste!
+
+- Class: text
+  Output: Logical data (similar to "bool" or "boolean" in other languages) is made
+    up of TRUE/FALSE values.  Note that "TRUE" (note the quotes) is text and TRUE is logical!  We can
+    also evaluate expressions and get a logical value that way.  For example, if
+    we assign 5 > 20 to the variable isSmaller, isSmaller will be a logical with a
+    value of FALSE.
+
+- Class: cmd_question
+  Output: For example, enter "str(5 > 20)" below at the prompt.  
+  CorrectAnswer: str(5 > 20)
+  AnswerTests: omnitest(correctExpr='str(5 > 20)')
+  Hint: Just copy and paste!
+
+- Class: text
+  Output: So, you've used both typeof() and str() (which means "structure")
+    to look at variable types.  What makes them different?  
+    typeof() just gives you the type (written out all the way).
+    str() gives you the type (abbreviated) and a quick peek at the data itself.
+    You can use either depending on what you need!
+
+- Class: text
+  Output: Factor data is categorical, and contains labels (things like "male" and 
+    "female") as well as levels (numbers that represent these categories, like
+    1 and 2).  That way, human users can see the labels, while computation can 
+    take place on numbers.  Factors can be ordered -- for categories that have a
+    logical order, like "small", "medium", "large" -- or unordered, for categories 
+    that don't represent increments, like "banana", "orange", "apple".
+
+- Class: text
+  Output: Character data contains text, like letters, letter-number combinations,
+    punctuation, etc.  "FALSE", "32" (in quotes), and "867-5309" are all character
+    types.  It's important to notice that numbers can be made into characters!
+    Sometimes when you get data that you expect to be numbers, they are character
+    type.  That's almost always because there is a character (like a comma or space)
+    that sneaked in with your numerical data.  Remember how R likes for all elements
+    of a vector to have the same data type?  Well, if you have 500 numbers and one
+    text in a vector, guess what the entire vector will be made into ("coerced to")?
+    Yep, character!
+
+- Class: text
+  Output: This is why data planning, preparation, and cleaning is so important.
+    If you have a list of ages, and just one of them says "4 months", all the rest
+    of the ages become character, and you can no longer do math on them.  You'll
+    have to remove or resolve the problematic data before you can make those numbers,
+    well, numbers!
+
+- Class: text
+  Output: And in case you need it, there is a complex data type for working with 
+    imaginary numbers.
+
+- Class: text
+  Output: There are other data types that are composed of various combinations
+    of the above data types.  These data types are generally used by R
+    packages for specific purposes. A really important special data type is the
+    "date" type, which is very useful for research!
+    
+- Class: mult_question
+  Output: 'Quick check: What is the correct data type for the text "TRUE"?'
+  AnswerChoices: Logical;Integer;Character
+  CorrectAnswer: Character
+  AnswerTests: omnitest(correctVal='Character')
+  Hint: Note that the word "TRUE" is in quotes!  This is not logical data, which would 
+    not appear in quotes.
+
+- Class: mult_question
+  Output: What data type would apply to the sum of 7 and 3.5?
+  AnswerChoices: Double;Integer;Character
+  CorrectAnswer: Double
+  AnswerTests: omnitest(correctVal='Double')
+  Hint: Will you end up with a sum that has a fractional part?
+
+
+- Class: text
+  Output: Let's take a look at some fabricated clinical data.  We'll start with 
+    the dataset you used in the last lesson.  I've already loaded the demographics
+    object into your environment!
+    
+- Class: cmd_question
+  Output: Take a look at your demographics data using View.
+  CorrectAnswer: View(demographics)
+  AnswerTests: omnitest(correctExpr='View(demographics)')
+  Hint: View(___________)
+
+- Class: text
+  Output: Let's take a look at the data *types* found in our demographics object.
+
+- Class: cmd_question
+  Output: Use str() to examine the data types found within the demographics object.
+  CorrectAnswer: str(demographics)
+  AnswerTests: omnitest(correctExpr='str(demographics)')
+  Hint: Type str( # object name )!
+
+
+- Class: text
+  Output: If we look at our data types, we notice a few poor fits.  CSV's just contain
+    raw data, not anything telling R what the data *means*, so we have to 
+    apply our domain expertise (and maybe take a look at a data dictionary)
+    in order to understand the data types and change them as needed.
+
+- Class: text
+  Output: 'Take, for example, the "SEX" variable.  It is listed as an int, or integer.
+    But is it *really* an integer value?  Are we *counting* anything?  No.
+    0 and 1 are just codes.  We could have used "M" and "F" or "male" and "female"
+    or even ♂ and ♀ to code these.  The data *looks* like an integer, but it
+    would be better off as categorical data (in R, a "factor" variable).'
+
+- Class: text
+  Output: |-
+    Also, I think it is important to point out that some codes are better than
+    others.  What if some people code 0/1 as 0 = Male, while other
+    code 0/1 as 0 = Female?  I prefer to code all of my factor variables with
+    labels that are human-readable and less prone to accidental confusion.
+    Programs like R can easily manipulate these labels as if they were
+    numbers, if that's important, so there's no reason to force them to be
+    numbers if there's a more logical, error-proof way to do it.  So let's
+    change the "SEX" variable to be a factor variable.
+
+
+- Class: text
+  Output: "When we create a factor variable, we have two parts: levels, and labels.  
+    Levels are coded as numbers, and they are assigned by R (unless you need to set
+    them for some reason -- we'll leave that aside for now).  Levels might
+    be displayed as those numbers, or they might be displayed using the labels
+    you provide.  Labels can be anything, but I prefer descriptive text."
+
+- Class: cmd_question
+  Output: |-
+    We can create a small vector with some factor data.  Enter the following
+    into the prompt below:
+    
+    eye_colors <- factor(c("blue", "blue", "green", "brown", "brown", "blue"))
+  CorrectAnswer: eye_colors <- factor(c("blue", "blue", "green", "brown", "brown", "blue"))
+  AnswerTests: omnitest(correctExpr='eye_colors <- factor(c("blue", "blue", "green", "brown", "brown", "blue"))')
+  Hint: You can copy/paste the command!
+
+- Class: cmd_question
+  Output: Use str() to take a peek at eye_colors.
+  CorrectAnswer: str(eye_colors)
+  AnswerTests: omnitest(correctExpr='str(eye_colors)')
+  Hint: Try str(# object you want to look at)!
+
+- Class: text
+  Output: The output is a little hard to understand at first.  It says there are
+    three levels, starts to describe the labels (but only shows two) 
+    and then gives you a list of numbers that correspond to the levels.
+    How can we interpret this?
+    
+- Class: cmd_question
+  Output: Let's just take a look at eye_colors.  Simply type eye_colors and hit enter!
+  CorrectAnswer: eye_colors
+  AnswerTests: omnitest(correctExpr='eye_colors')
+
+- Class: text
+  Output: "We can see the eye colors we typed in, but they aren't enclosed
+    in quotes as if they are text fields.  We can also see the three possibilities
+    (levels, here displayed with their labels) : blue, brown, and green."
+
+- Class: cmd_question
+  Output: Now let's look at the numerical levels in eye_colors, using as.integer(eye_colors).
+  CorrectAnswer: as.integer(eye_colors)
+  AnswerTests: omnitest(correctExpr='as.integer(eye_colors)')
+
+- Class: text
+  Output: 'R has given eye_colors some labels and levels by default.
+    It has made labels from the text we passed in, and then assigned each 
+    label a corresponding level.  R will show the factors in their correct order,
+    so "blue" is 1, "brown" is 2, and "green" is 3.  This is because R, in 
+    the case of text labels, will
+    alphabetize them all and assign levels like that!'
+    
+- Class: text
+  Output: 'This explains the output of the str() function.  The numbers 1, 2,
+    and 3 represent the levels "blue", "brown" and "green".  So the numbers
+    "1 1 3 2 2 1" really mean "blue blue green brown brown blue".'
+
+- Class: text
+  Output: |-
+    We can also take existing data (like the "SEX" variable in our 
+    demographics data frame) and turn it into a factor variable.  In the case of
+    SEX, we will want to pass three things to factor():
+    
+    * The data we're transforming (demographics$SEX)
+    
+    * The existing levels (in our case, the set of 0 and 1)
+    
+    * The labels that correspond to those levels (in our case, let's say
+    we know that Female is 0 and Male is 1, so our labels are "Female" and "Male",
+    in the same order we put our levels).
+
+- Class: cmd_question
+  Output: |-
+    Often, it makes sense to check that we have a command correct before using
+    it to directly replace some data we're working with.  So let's try out the
+    factor(), and make sure the output makes sense.  If it does, we'll use it 
+    again to replace some of the demographic data.  Type
+    
+    new_sex_values <- factor(demographics$SEX, levels = c(0,1), labels=c("Female", "Male"))
+    
+    in the prompt below!
+  CorrectAnswer: new_sex_values <- factor(demographics$SEX, levels = c(0,1), labels=c("Female", "Male"))
+  AnswerTests: omnitest(correctExpr='new_sex_values <- factor(demographics$SEX, levels = c(0,1), labels=c("Female", "Male"))')
+
+- Class: cmd_question
+  Output: Let's peek at our new values.  Type head(new_sex_values).
+  CorrectAnswer: head(new_sex_values)
+  AnswerTests: omnitest(correctExpr='head(new_sex_values)')
+  Hint: 
+
+- Class: text
+  Output: Well, these *look* right, but it sure would be nice to see the new values
+    alongside the old ones to see if they match!
+
+
+- Class: cmd_question
+  Output: |-
+    We can create a data frame to quickly compare the two.  Create a new data
+    frame with two columns, one named "old" and one named "new" by entering
+    the following:
+    
+    check_factors <- data.frame(old = demographics$SEX, new = new_sex_values)
+  CorrectAnswer: check_factors <- data.frame(old = demographics$SEX, new = new_sex_values)
+  AnswerTests: omnitest(correctExpr='check_factors <- data.frame(old = demographics$SEX, new = new_sex_values)')
+  Hint: 
+
+- Class: cmd_question
+  Output: Now, take a look at the first 20 rows by typing head(check_factors, 20).
+  CorrectAnswer: head(check_factors, 20)
+  AnswerTests: omnitest(correctExpr='head(check_factors, 20)')
+  Hint: Just copy and paste!
+
+- Class: text
+  Output: Great, this looks like it works perfectly.  Still, it's a good thing that
+    we did the extra checking.  Now we can replace the 0/1 column with our 
+    Female / Male column!
+
+- Class: cmd_question
+  Output: |-
+    Replace the old values with the new by assigning our new sex values to the 
+    column that currently holds the older values, by typing 
+    
+    demographics$SEX <- new_sex_values
+  CorrectAnswer: demographics$SEX <- new_sex_values
+  AnswerTests: omnitest(correctExpr='demographics$SEX <- new_sex_values')
+  Hint: Just copy and paste!
+
+- Class: cmd_question
+  Output: |-
+    Remember that although you're seeing the
+    whole words "male" and "female", R is storing the data using a numeric code.
+    It's only when the data is being presented (e.g. by using View) that the words 
+    are swapped in to replace the code.  This is a great example of how you can code 
+    data using factors so that it's efficient.  R isn't storing words, it's storing the
+    levels (aka "codes"), so we're not wasting disk or memory space.  At the same time,
+    we can easily understand our data because we put good labels into our factor variable!
+    
+    Take a look at your demographics data using View.  You should see much
+    more easily understandable SEX data.  
+  CorrectAnswer: View(demographics)
+  AnswerTests: omnitest(correctExpr='View(demographics)')
+  Hint: View(___________)
+
+- Class: text
+  Output: 'OK, so now we can do something similar for race and ethnicity, two other
+    variables that have integer values that are actually categories.  There are
+    a bunch of race variables: 1=American Indian or Alaska Native,
+    2=Asian,3=Black or African-American,4=Native Hawaiian or Other Pacific Islander,
+    5=White, 6=More Than One Race, 7=Other, 8=Refused, 99=Unknown or not reported.'
+    
+
+- Class: text
+  Output: We're going to make our commands a bit easier by creating two vectors to hold
+    the labels and levels before proceeding.
+    
+
+- Class: cmd_question
+  Output: |-
+    Create the "myLabels" object by typing:
+    
+    myLabels <- c("American Indian or Alaska Native", "Asian", 
+               "Black or African-American", 
+               
+               
+               "Native Hawaiian or Other Pacific Islander",
+               "White", "More Than One Race", 
+               
+               "Other", 
+               "Refused", "Unknown or not reported")
+               
+    Make sure when you copy and paste to remove the | symbols -- that's just
+    swirl doing its thing!  Also, check to make sure you have the right number
+    of spaces inside the quoted strings, in case one of those breaks on a line.
+    
+    Other whitespace (like around commas or assignment arrows) won't mess swirl up,
+    so don't worry about getting your command to have all the spacing exactly like
+    mine.
+
+  CorrectAnswer: myLabels <- c("American Indian or Alaska Native", "Asian", 
+               "Black or African-American", 
+               "Native Hawaiian or Other Pacific Islander",
+               "White", "More Than One Race", "Other", 
+               "Refused", "Unknown or not reported")
+  AnswerTests: omnitest(correctExpr='myLabels <- c("American Indian or Alaska Native", "Asian", 
+               "Black or African-American", 
+               "Native Hawaiian or Other Pacific Islander",
+               "White", "More Than One Race", "Other", 
+               "Refused", "Unknown or not reported")')
+  Hint: Copy and paste, removing any "pipe" (|) symbols!
+
+- Class: cmd_question
+  Output: |-
+    Create the "myLevels" object by typing:
+    
+    myLevels <- c(1:8,99)
+               
+    The colon says "all the integers between...".
+  CorrectAnswer: myLevels <- c(1:8,99)
+  AnswerTests: omnitest(correctExpr='myLevels <- c(1:8,99)')
+  Hint: Copy and paste, removing any "pipe" (|) symbols!
+  
+- Class: text
+  Output: |-
+    As a reminder, we will want to pass three things to factor():
+    
+    * The data we're transforming (demographics$RACE)
+    
+    * The existing levels (in our case, myLevels)
+    
+    * The labels that correspond to those levels (myLabels).
+
+- Class: cmd_question
+  Output: Make a new R object called new_race_data which has type of factor (you'll want to use
+    "factor()") and uses the labels and levels you specified earlier.  You might
+    have to scroll up to model your command after things you've done earlier in this lesson!
+  CorrectAnswer: new_race_data <- factor(demographics$RACE, levels=myLevels, labels=myLabels)
+  AnswerTests: calculates_same_value('new_race_data <- factor(demographics$RACE, levels=myLevels, labels=myLabels)')
+  Hint: Try new_race_data <- factor(#some demographics column, labels = myLabels, levels=myLevels)
+
+
+- Class: cmd_question
+  Output: Now, let's replace demographics$RACE with new_race_data.  You remember how, right?
+  CorrectAnswer: demographics$RACE <- new_race_data
+  AnswerTests: omnitest(correctExpr='demographics$RACE <- new_race_data')
+  Hint: Try demographics$RACE <-  something
+
+- Class: cmd_question
+  Output: Take a look at your demographics data using View, to see what your data
+    look like so far!
+  CorrectAnswer: View(demographics)
+  AnswerTests: omnitest(correctExpr='View(demographics)')
+  Hint: View(___________)
+
+
+- Class: cmd_question
+  Output: |-
+    We're pretty comfortable with working with factors, so instead of making a temporary
+    object like new_race_data or new_sex_data, we can instead replace data directly.
+    We now have to change ethnicity.  You've worked pretty hard in this lesson, so 
+    I'll just feed you the command.  Issue this:
+    
+    demographics$ETHNICITY <- factor(demographics$ETHNICITY, levels = c(1,2,99), labels = c("Hispanic or Latino", "Not Hispanic or Latino", "Unknown or Not Reported"))
+  CorrectAnswer: demographics$ETHNICITY <- factor(demographics$ETHNICITY, levels = c(1,2,99), labels = c("Hispanic or Latino", "Not Hispanic or Latino", "Unknown or Not Reported"))
+  AnswerTests: omnitest(correctExpr='demographics$ETHNICITY <- factor(demographics$ETHNICITY, levels = c(1,2,99), labels = c("Hispanic or Latino", "Not Hispanic or Latino", "Unknown or Not Reported"))')
+  Hint: Make sure you don't copy in any extra spaces or the | symbol!!
+
+- Class: text
+  Output: We're almost done!  Let's take a peek at our data now that we've fixed it up!
+
+- Class: cmd_question
+  Output: Use the str() command to look at your data.
+  CorrectAnswer: str(demographics)
+  AnswerTests: omnitest(correctExpr='str(demographics)')
+  Hint: str(d....)
+
+
+- Class: text
+  Output: We just have one last field to correct, the PAT_DOB field.  It's still showing up as 
+    "chr", but really it's a date.  It's important that it be a date type, 
+    because that's the only way we can do math on dates -- things like figuring 
+    out age at a given measurement, or how many days a patient was inpatient.
+
+- Class: text
+  Output: If every single field is in the form YYYY-MM-DD, R will easily figure out that
+    the data is a date, and read.csv() will end up giving you a 
+    date field.  But in this case, we have the form MM/DD/YY.
+    Luckily, as.Date() is pretty flexible in helping us out!
+
+- Class: text
+  Output: Let's first think about dates.  If I say I was born on 03-05-80, when was my 
+    birthday?  If you're from the USA, you probably think March 5, 1980.  But if
+    you're from other parts of the world, you may say "May 3, 1980".  Which number
+    represents the month, and which the day?  You have to give me more information.
+    Also, if you have a patient born on 01-01-18, is your patient a baby?  Or a 
+    centenarian?  There are multiple assumptions at play when we work with date
+    data.
+
+- Class: text
+  Output: The best thing to do is to record dates, and ask for dates, in the form YYYY-MM-DD,
+    which eliminates confusion and is the generally agreed upon standard for dates
+    in the computational world.  Once you get data like that, DON'T work with it in 
+    Excel, which loves to mess up your dates and have you save them in some regional
+    way that makes it hard to work with computationally.
+
+
+- Class: text
+  Output: But let's say you can't make any requests, and the dates just come to you in some
+    other way than YYYY-MM-DD.  Are you sunk?  No!  R's as.Date() function can help
+    you.  You have to tell as.Date() what format your dates are in, however.
+
+- Class: cmd_question
+  Output: To see what the various formats are, type ?strptime().  The "help" pane should 
+    now show a handy help file for you to look at for the next question.
+  CorrectAnswer: ?strptime()
+  AnswerTests: omnitest(correctExpr='?strptime()')
+  Hint: Just copy and paste!
+  
+  
+
+- Class: mult_question
+  Output: What does the code %m indicate?  %M?
+  AnswerChoices: The code %m means month, %M means minute;The code %m means month without leading 0 for single digit months, %M means month with leading 0 if needed;The code %m means minute, %M means month 
+  CorrectAnswer: The code %m means month, %M means minute
+  AnswerTests: omnitest(correctVal='The code %m means month, %M means minute')
+
+
+- Class: mult_question
+  Output: What format would we specify for a date that had month, day, and two-digit year, 
+    separated by slashes?
+  AnswerChoices: format = "%m/%d/%y";format = "%M/%D/%Y";format = "m/d/yy";format = "%m/%d/%Y"
+  CorrectAnswer: format = "%m/%d/%y"
+  AnswerTests: omnitest(correctVal='format = "%m/%d/%y"')
+  Hint: Take another look in the help file for strptime!
+
+- Class: cmd_question
+  Output: |-
+    We know the format to use (here we'll assume that our dates are in USA format,
+    so mm/dd/yy), so let's fix our dates!  
+    Take the correct format (from the last question) and use it in this command:
+    
+    demographics$PAT_DOB <- as.Date(demographics$PAT_DOB, format = "??????")
+  CorrectAnswer: demographics$PAT_DOB <- as.Date(demographics$PAT_DOB, format = "%m/%d/%y")
+  AnswerTests: omnitest(correctExpr='demographics$PAT_DOB <- as.Date(demographics$PAT_DOB, format = "%m/%d/%y")')
+  Hint: 
+
+- Class: cmd_question
+  Output: Take a look at your demographics data using View to see what you have at
+    this point -- I think you'll find it much more user-friendly than what you 
+    started with!
+  CorrectAnswer: View(demographics)
+  AnswerTests: omnitest(correctExpr='View(demographics)')
+  Hint: View(___________)
+
+- Class: cmd_question
+  Output: Now try summary() to look at a thumbnail sketch of demographics.  When you did this
+    in a previous lesson, you had numerical statistics (like quartiles and mean) of things like
+    race and ethnicity, which didn't make much sense.  Now that those variables are
+    factors, will summary() be a bit more intuitive?
+  CorrectAnswer: summary(demographics)
+  AnswerTests: omnitest(correctExpr='summary(demographics)')
+  Hint: Try summary(____________)
+
+
+- Class: cmd_question
+  Output: Let's say you want to save this data to your computer to share with someone later.
+    I don't know if you're using a Windows or Mac or Linux machine, and I don't know
+    where you like to save things.  We will save our .csv with the updated data in your
+    R working directory.  You can find out what this is by typing getwd() at the prompt
+    below.  Please do that now!
+  CorrectAnswer: getwd()
+  AnswerTests: omnitest(correctExpr='getwd()')
+  Hint: Just copy and paste or type getwd()
+
+- Class: text
+  Output: |-
+    Great, now you know where we're going to save the .csv, so you can find it later.
+    You can also save a .csv to any place on your computer, using the correct path,
+    but without knowing your file structure, I can't help you with that in this
+    training program.  For now, you'll just save it into your working directory, and
+    you can move it somewhere else later if you want.
+
+    This is your last data task for this lesson!
+
+- Class: cmd_question
+  Output: Enter the following to save your .csv!
+
+    write.csv(demographics, "my_fake_demographics.csv", row.names = FALSE)
+  CorrectAnswer: write.csv(demographics, "my_fake_demographics.csv", row.names = FALSE)
+  AnswerTests: omnitest(correctExpr='write.csv(demographics, "my_fake_demographics.csv", row.names = FALSE)')
+  Hint: Copy and paste are useful allies!
+
+- Class: text
+  Output: Great work!  In this lesson you learned about factors and dates, how to change data
+    types, and how to save a .csv to your local computer.  
+
+- Class: video
+  Output: Say "Yes" to open a quick survey (less than five minutes, I promise!) in your web browser. 
+    It's important to us at Arcus that we only provide good quality 
+    education that's helpful to you.  This survey gives us important metrics for
+    knowing what works and what doesn't.
+  VideoLink: https://redcap.chop.edu/surveys/?s=L4MXDFAFDY
+
+- Class: text
+  Output: In the next lesson, we'll 
+    talk about the structure and shape of clinical data in terms of relationships 
+    between data.

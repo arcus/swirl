@@ -1,0 +1,627 @@
+- Class: meta
+  Course: Clinical Data in R
+  Lesson: Combining Clinical Data
+  Author: Joy Payton
+  Type: Standard
+  Organization: Children's Hospital of Philadelphia, Arcus Program
+  Version: 2.4.3
+
+- Class: text
+  Output: |-
+    Thanks for taking the "Combining Clinical Data" lesson as part of the 
+    "Clinical Data in R" swirl course.  In this 
+    lesson, we'll talk about how to combine several different tables into one as part
+    of your analytical pipeline. 
+
+    This lesson should take about 30-45 minutes to complete, and
+    at the end I'll invite you to take a < 5 minute survey about how you liked the
+    lesson.  Hit enter to keep going!
+
+    When I ask you to enter something, it's always good if you type it out yourself, 
+    rather than copy-paste, because it will help you remember.  But if you do choose to copy-paste,
+    be careful not to include any of the | symbols at the far left of the text.  That's 
+    just swirl's way of printing its text and making it clear that you're still in the lesson.
+    
+- Class: text
+  Output: If you've never used swirl, it's simple!  When you see a prompt with three dots, 
+    that's your invitation to hit enter to continue.  Do that now.
+    
+- Class: mult_question
+  Output: If I ask you a multiple choice question, you should enter the number before the 
+    answer you choose.  For example, which one of these is a fruit?
+  AnswerChoices: Banana;Sports Car;Keyboard
+  CorrectAnswer: Banana
+  AnswerTests: omnitest(correctVal='Banana')
+    
+- Class: cmd_question
+  Output: If you see a triangle prompt like this > it means you're supposed to enter a 
+    command.  I'll start off by giving you exactly what to type, and as you learn,
+    I'll reduce the hints I give and ask you to construct the right command for 
+    what you want to accomplish.  For example, type "4+7" below.
+  CorrectAnswer: 4 + 7
+  AnswerTests: omnitest(correctExpr='4+7')
+
+- Class: text
+  Output:  You can skip questions you're having
+    difficulty with by typing skip(), and you can leave this lesson entirely by
+    typing bye() or hitting escape.  
+
+- Class: text
+  Output: In this lesson, we will examine fabricated clinical data. 
+    You will work with data that looks like the same kind of data you 
+    might get from a query of CHOP's EHR.
+
+- Class: text
+  Output: Again, it's very important to point out that this is not 
+    *deidentified* data, but rather completely *fabricated* data.  
+    Got it?  Good!
+
+- Class: text
+  Output: In previous lessons, you learned how to bring data into your R environment, how 
+    to look at your data and understand its data types, how to fix data types that
+    are less than optimal, and how to aggregate data that has multiple
+    rows per subject to come up with a structure that's one row per patient.
+
+- Class: text
+  Output: Now we're going to take your most recent data (I've already 
+    loaded it into your environment) and work on data combining.  We'll also
+    add in some new data you haven't seen yet!
+
+- Class: text
+  Output: It's very important to understand that it's a good idea to get your component
+    datasets cleaned up and reshaped the way you want them before trying to 
+    combine them into a single dataset.
+
+- Class: text
+  Output: In R, most data combining takes place using merge() or join().  Understanding how
+    these work can help you understand why it's so important to examine your data
+    well before combining them.  The two commands are similar, and to make things
+    a bit simpler, I'll just use merge() in this lesson.
+
+- Class: text
+  Output: merge() and join() work when you have two datasets that have one or more columns
+    of data in common.  For example, in our pat_meds_by_name data frame, we have a patient MRN
+    (PAT_MRN) and then several columns of NSAID categories like "ibuprofen" and "naproxen".
+    In our demographics data frame, we have patient MRNS as well as race, sex, date of birth,
+    and ethnicity.  The data in common is the MRN column in each data frame.
+    
+
+- Class: text
+  Output: It's important to note that we may have an overlapping Venn diagram here -- some 
+    patients may appear in both tables, others in just one or the other.  You 
+    can alter your data combining technique to get any part of this Venn diagram.
+    You can choose to include only the patients that exist in both data frames.  Or
+    hang on to all the data from both data frames, with blank data in the case of a
+    patient who doesn't appear in one of the datasets.  Or, maybe you want to 
+    exclude only those patients without NSAID information, or only those patients who 
+    lack demographic information.  That's all possible with a few small changes.
+    
+
+- Class: text
+  Output: |-
+    You can also perform data combining by using more than one column.  For example,
+    maybe you want to combine data based on three columns: firstName, lastName, and ZIP,
+    because you know that while different people could match on one or two of those
+    data points, a match on all three indicates that it's the same person, and you 
+    can combine that person's data from both of the data frames you're looking at.
+    
+
+- Class: text
+  Output: If one (or worse, both) of the data frames you're combining has more than one row
+    per individual, they will have multiple rows in the combined data frame too.  In 
+    fact, this grows geometrically!
+    
+
+- Class: text
+  Output: Here's an example.  Let's say you have two dataframes, one representing math grades
+    and one representing English grades for high school students.  You want to see
+    if there's any correlation between them.  You also have a measure of how many
+    adverse childhood events (ACEs) each student experienced in childhood, and want to see
+    if there's a relationship between ACE exposure and academic achievement.
+
+- Class: cmd_question
+  Output: I've already added the data frames math, english, and aces to your environment.  
+    Use View to look at the english data frame.
+  CorrectAnswer: View(english)
+  AnswerTests: omnitest(correctExpr='View(english)')
+  Hint: Try something like View(_______).
+
+- Class: cmd_question
+  Output: Without closing the tab that shows the english grades, use View to display the
+    math data frame.
+  CorrectAnswer: View(math)
+  AnswerTests: omnitest(correctExpr='View(math)')
+  Hint: Try something like View(_______).
+
+- Class: cmd_question
+  Output: Without closing any tabs, take a look at aces next, still using View.
+  CorrectAnswer: View(aces)
+  AnswerTests: omnitest(correctExpr='View(aces)')
+  Hint: Try something like View(_______).
+
+- Class: mult_question
+  Output: Look carefully at the three data frames in your data viewing pane.  Are there any
+    students that are missing from one or two of the data frames?
+  AnswerChoices: Yes, one student is missing from "math";Yes, one student is missing from "english";Yes, there are two missing students -- one from "math" and one from "english"  
+  CorrectAnswer: Yes, one student is missing from "math"
+  AnswerTests: omnitest(correctVal='Yes, there are two missing students -- one from "math" and one from "english"')
+  Hint: There are 11 students altogether, when you look at the aces data frame!
+
+- Class: text
+  Output: You will also notice that for math and english, students may have several grades,
+    corresponding to their years in high school.  Some students might take
+    two math or two english courses in the same year, and some students might 
+    not take one or the other for a year.  There are also transfer students, who 
+    only did part of their high school at the place where we got our data.
+
+- Class: text
+  Output: As usual, this data will need to be reshaped, possibly aggregated, and combined
+    before you can do analysis on it.  This is not a failure on the part of the 
+    person providing you the data.  Rather, by giving you the data un-combined, in
+    its raw and possibly messy format, your data source has given you lots of 
+    flexibility.
+
+- Class: text
+  Output: |-
+    For example, if you want to do something longitudinal, like watch how grades rise
+    or fall over the four years of high school, you might want to limit yourself 
+    just to the subset of students who have data for all four years.
+    
+- Class: text
+  Output: |-
+    Or, if you're interested just in the correlation between math and English grades,
+    crossectionally, you probably want to keep just one math and English grade per 
+    student, so that you don't include students multiple times and bias your model.  In
+    this case you might have to define a rule like "only keep the earliest year in which we have
+    both math and English" or "come up with a math and an English average only for 
+    the years that both were studied" or "make averages for math and English regardless
+    of whether both were studied at the same time".
+    
+- Class: text
+  Output: |-
+    Or, if you were interested in how ACEs affect academic performance, maybe you'd 
+    want an overall average of all grades available, throwing math and English into the
+    same formula.  Or maybe weight them so that 50% of the average comes from math and 50%
+    from English, even if that isn't the relative representation of the two subjects in the
+    student's courseload.
+    
+- Class: text
+  Output: |-
+    Maybe you want to study whether ACE exposure means that students decline in performance
+    over time, or improve over time.  Then you might want to take a difference between the first
+    and last year of high school, or take the average of year-over-year improvement throughout 
+    high school, and see if that correlates to ACE exposures.
+    
+- Class: text
+  Output: |-
+    There are many ways to use this data, and your data source can't read your mind
+    to know what you'd like to do with it.  Data preparation for analysis is part
+    of the research process and takes a researcher mindset to do it well.
+
+- Class: cmd_question
+  Output: |-
+    Let's start by doing the simplest merge possible.  merge() needs two data frames
+    at a minimum, and we usually also add some parameters to define the merge. 
+    But for now, try the following:
+    
+    simple_merge <- merge(english, math)
+  CorrectAnswer: simple_merge <- merge(english, math)
+  AnswerTests: omnitest(correctExpr='simple_merge <- merge(english, math)')
+  Hint: Type a hint.
+
+- Class: cmd_question
+  Output: Take a look at simple_merge, using View.  Don't close the tab, because I want you
+    to answer a question about the data next.
+  CorrectAnswer: View(simple_merge)
+  AnswerTests: omnitest(correctExpr='View(simple_merge)')
+  Hint: Try View(________)
+
+- Class: text
+  Output: What's going on here?  This isn't a merge?!  Well, actually, it is.  If you don't
+    explicitly tell merge what to match up between two data frames (by using the "by" 
+    parameter), it will look at all the column
+    names, and assume that the column names common to both data frames are what make a 
+    good match.  In our case, the column names are the same for both math and english,
+    so merge() decides that it will make a data frame of all the data from both data frames 
+    where Name, Grade, and Year match.  That only happens once, when Carlos made the same
+    grade in math and English one year.
+    
+- Class: cmd_question
+  Output: |-
+    Let's try our merge again, but explicitly tell merge to only merge by the two
+    columns we know should match -- Name and Year.  Try the following:
+    
+    name_year_merge <- merge(english, math, by=c("Name", "Year"))
+  CorrectAnswer: name_year_merge <- merge(english, math, by=c("Name", "Year"))
+  AnswerTests: omnitest(correctExpr='name_year_merge <- merge(english, math, by=c("Name", "Year"))')
+  Hint: Copy and Paste!
+
+- Class: cmd_question
+  Output: Take a look at name_year_merge, using View.  Don't close the tab, because I want you
+    to answer a question about the data next.
+  CorrectAnswer: View(name_year_merge)
+  AnswerTests: omnitest(correctExpr='View(name_year_merge)')
+  Hint: Try View(________)
+  
+- Class: mult_question
+  Output: What looks weird in name_year_merge?
+  AnswerChoices: The row numbers;The column headers;Unprintable UTF-8 characters
+  CorrectAnswer: The column headers
+  AnswerTests: omnitest(correctVal='The column headers')
+  Hint:  
+
+- Class: text
+  Output: |-
+    When you have columns like "Name" and "Year", that appear in both data frames 
+    but are part of the matching criteria (the "by" in the merge command),
+    it's no big deal, because the matching columns only show up once in the merged 
+    data frame.
+    
+    But when you have a column like "Grade" in both data frames, a column that has
+    the same name in both, but isn't part of the matching criteria, they both need to 
+    be included.  How to distinguish them, given that R won't let you have two columns
+    with identical names?  Append .x to the first and .y to the second.  That's a
+    bit ugly, right?
+
+- Class: cmd_question
+  Output: Let's try a different tack.  We should change the name of the "Grade" column in
+    both math and english so that when we combine them, we know which is which!
+    Start by entering names(math) <- c("Name", "Math_Grade", "Year") at the prompt.
+  CorrectAnswer: names(math) <- c("Name", "Math_Grade", "Year")
+  AnswerTests: omnitest(correctExpr='names(math) <- c("Name", "Math_Grade", "Year")')
+  Hint: Try just copying and pasting, being careful not to let a stray | symbol in!
+
+- Class: cmd_question
+  Output: Now change the names for english to "Name", "English_Grade", and "Year".
+  CorrectAnswer: names(english) <- c("Name", "English_Grade", "Year")
+  AnswerTests: omnitest(correctExpr='names(english) <- c("Name", "English_Grade", "Year")')
+  Hint: You need to make two small changes to the command you did for the math data frame.
+  
+
+- Class: cmd_question
+  Output: |-
+    Let's try merge again. This time, we'll specify that we want to merge based on
+    matching Name and Year.  Now that we've changed the "Grade" column name in both data frames,
+    we could just let merge() figure out that Name and Year are the two columns that exist in
+    both data frames, but I find that it's better to be explicit and say exactly what you
+    want.  It helps your code be more understandable!
+    
+    Enter name_year_merge <- merge(english, math, by=c("Name", "Year")).
+  CorrectAnswer: name_year_merge <- merge(english, math, by=c("Name", "Year"))
+  AnswerTests: omnitest(correctExpr='name_year_merge <- merge(english, math, by=c("Name", "Year"))')
+  Hint: Just copy and paste!
+
+- Class: cmd_question
+  Output: Take a look at name_year_merge, using View.  Don't close the tab, because I want you
+    to answer a question about the data next.
+  CorrectAnswer: View(name_year_merge)
+  AnswerTests: omnitest(correctExpr='View(name_year_merge)')
+  Hint: Try View(________)
+
+- Class: mult_question
+  Output: What does each row represent in name_year_merge?
+  AnswerChoices: Each row represents a different student, there's no repetition of student name;
+    Each row represents a specific student in a given year, there's no repetition of Name - Year combination;
+    Each row represents a specific student in a given year, with repetition of Name - Year combination
+  CorrectAnswer: Each row represents a specific student in a given year, with repetition of Name - Year combination
+  AnswerTests: omnitest(correctVal='Each row represents a specific student in a given year, with repetition of Name - Year combination')
+  Hint: Look closely at Ebony!
+
+
+- Class: mult_question
+  Output: Is anyone missing from name_year_merge?
+  AnswerChoices: No, all the data is accounted for!;Yes, there is one missing student; Yes, there are two missing students
+  CorrectAnswer: Yes, there are two missing students
+  AnswerTests: omnitest(correctVal='Yes, there are two missing students')
+  Hint: Compare the merged data with the other data frames, like aces, math, and english.
+
+- Class: text
+  Output: |-
+    Well, our simple_merge data frame has some advantages -- it matched up grades
+    correctly by student name and grade, but there are a couple of potential 
+    problems.  First of all, Ebony took two math classes in her last year of 
+    high school, which means she has two rows for year 4.  And both of those match
+    with her (only) English grade for year 4.  How can we account for that?
+    
+    A second problem is that we're missing the data for students who didn't take 
+    one or the other subject in a given year.  Kevin and Ingrid have disappeared!
+    While this might have been our intent (we only wanted subjects with complete data),
+    what if it wasn't?  How can we tell merge to hang on to even partial data?
+
+- Class: text
+  Output: |-
+    Let's tackle the issue of Ebony's extra row first.  Merge looks for matches between 
+    Ebony for Year 1 in both data frames, finds a single row in each, sticks the data together,
+    no problem.  Same thing for Ebony Year 2 and Year 3.  Then we get to Ebony Year 4.
+    merge() finds one row in english, and two in math.  The english row matches perfectly with each of the 
+    math rows, so merge gives both combinations back.  This is what I meant by "geometric growth"
+    earlier.  It's basic combinatorics.  If you have 2 pants and 3 shirts, you have 2 X 3, or 6 possible combinations.
+    If you have 1 English and 2 Math grades, you have 1 X 2 or 2 combinations.
+    
+    You may also have heard this called "Cartesian" or "cross" products.  This kind of multiplication of rows
+    can happen often in clinical data, where we frequently have repeating measures.  If a subject
+    has three IQ tests and 2 Beck Depression Inventory results, there are 6 possible combinations that
+    are all equally valid.  Knowing how to reshape and aggregate data *before* combining data frames
+    can help reduce this geometric growth of rows.
+
+- Class: video
+  Output: There's an article on the Arcus Education Portal that describes this in 
+    greater detail.  Would you like to open it in a browser, to read later (or even now?)
+  VideoLink: http://education.arcus.chop.edu/getting-to-one-row/
+  
+- Class: text
+  Output: So the problem with Ebony could be figured out by aggregating the data.  Maybe 
+    we want to keep just the *average* math and *average* English grade for each year.
+    So if Mary, let's say, takes a British Lit and a Business Composition course in her
+    third year, we'll average those two grades for her year 3 English grade.
+
+- Class: cmd_question
+  Output: |-
+    We did some work similar to this in the last lesson.  We'll use dplyr to
+    group our data by Name and Year, then use summarise (or summarize) to 
+    set Math_Grade equal to the mean of Math_Grade.
+    
+    Don't forget that dplyr allows you to use column names without putting them in quotes!
+    So instead of typing something like ("Name", "Year"), you can just type
+    (Name, Year).  It's handy!
+    
+    Fill in the blanks, and submit the following command once you've completed it:
+    
+    math_averages <- math %>% 
+                     group_by(____, ____) %>%
+                     summarise(Math_Avg = mean(____))
+  CorrectAnswer: math_averages <- math %>% 
+                                  group_by(Name, Year) %>%
+                                  summarise(Math_Avg = mean(Math_Grade))
+  AnswerTests: omnitest(correctExpr='math_averages <- math %>% 
+                                  group_by(Name, Year) %>%
+                                  summarise(Math_Avg = mean(Math_Grade))')
+  Hint:  This one's hard, so I'll just give it to you! math_averages <- math %>% 
+                                  group_by(Name, Year) %>%
+                                  summarise(Math_Avg = mean(Math_Grade))
+
+- Class: cmd_question
+  Output: Now create english_averages using the same method!
+  CorrectAnswer: english_averages <- english %>% 
+                    group_by(Name, Year) %>%
+                    summarise(English_Avg = mean(English_Grade))
+  AnswerTests: omnitest(correctExpr='english_averages <- english %>% 
+                    group_by(Name, Year) %>%
+                    summarise(English_Avg = mean(English_Grade))')
+  Hint: Don't forget to change "Math_Grade" to "English_Grade"!
+
+- Class: text
+  Output: In our case, english_averages should have exactly the same data as english, 
+    since no one 
+    in our data set has done more than one English class in a year.  But our math_averages
+    should have one fewer row than math, to account for averaging Ebony's fourth year math grade
+    over two classes.
+
+- Class: cmd_question
+  Output: Take a quick peek at math_averages using View, to confirm that Ebony has an averaged
+    math grade for her fourth year.
+  CorrectAnswer: View(math_averages)
+  AnswerTests: omnitest(correctExpr='View(math_averages)')
+  Hint: 
+
+- Class: text
+  Output:  Now that Ebony's math grades have been averaged, she has a decimal grade, instead
+    of an integer.  Since R requires that every vector (and a column in a data frame is 
+    essentially a vector) have the same data type throughout, we now have decimal versions of
+    every single grade, for each person and year.  So if someone had an 80 before, they
+    now have an 80.0.
+
+
+- Class: text
+  Output: |-
+    OK, so that solves the "extra row for Ebony" problem.  But what about our missing 
+    students?
+    
+    The missing students came about because merge defaults to only giving you the 
+    "overlap" part of the Venn diagram.  So only if a student-year combo is in both
+    data frames will a row be supplied for that student-year combo.
+    
+    For example, Carlos had three years of English (2,3,4) and two years of Math (3,4). 
+    Only years 3 and 4 appear in the merged data set.
+    
+    Kevin and Ingrid don't appear at all, because in both of their cases, they never took both
+    English and Math in the same year.
+    
+    Again, this could be exactly what you want, but let's say it isn't.  You'd rather see
+    everyone's (average) performance in each subject for each year, even if it means there 
+    will be blanks for either Math or English averages.
+
+- Class: text
+  Output: In order to do this, we have to use the "all" keywords in the merge() command.
+    There are three possibilities.  We can say all.x = TRUE, all.y = TRUE, or 
+    all = TRUE.  Let's examine each possibility.
+
+- Class: text
+  Output: In merge(), you can assign the labels x and y to the two data frames you're merging,
+    by doing something like merge(x=math, y=english).  It's optional, but the reason 
+    why it's helpful is so you can specify special details about one or both data
+    frames.
+
+- Class: text
+  Output: For example, let's say that we are most interested in math scores.  If we have 
+    English scores, great, but we don't care if English scores are missing.  If
+    math is missing, however, we don't want the information, because it's useless
+    to us.
+    
+
+- Class: text
+  Output: |-
+    In a case like this, we could do the following:
+    
+    merge(x=math, y=english, by=c("Name", "Year"), all.x = TRUE)
+    
+    This tells merge "hang on to all the rows of x, even if there's no
+    corresponding row in y to merge with."
+    
+    We could also do it like this:
+    merge(x=english, y=math, by=c("Name", "Year"), all.y = TRUE)
+    
+    In this case, we just change the order of the merge, which will affect
+    the column order, but not the rows that are included.
+    
+
+- Class: text
+  Output: Another possibility is that we want all rows, even if there's only math or only English.
+    In this case, we could do all=TRUE, which is like saying both of all.x = TRUE and 
+    all.y = TRUE.  Basically, we tell merge to hang on to everything, and match up
+    where possible.  If we use all=TRUE, we don't necessarily have to specify which
+    data frame is x and which is y, because it doesn't matter!  We're keeping everything.
+
+- Class: cmd_question
+  Output: Create a merged dataset called all_students that merges math_averages as x 
+    and english_averages as y, which matches on Name and Year, and preserves all rows.
+  CorrectAnswer: all_students <- merge(x=math_averages, y=english_averages, by=c("Name", "Year"), all=TRUE)
+  AnswerTests: omnitest(correctExpr='all_students <- merge(x=math_averages, y=english_averages, by=c("Name", "Year"), all=TRUE)')
+  Hint: |-
+    Fill in the blanks:  all_students <- merge(x=__________, y=____________, by=c("Name", ________), all=______)
+
+- Class: cmd_question
+  Output: Great!  Use View to look at all_students.
+  CorrectAnswer: View(all_students)
+  AnswerTests: omnitest(correctExpr='View(all_students)')
+  Hint: 
+
+- Class: mult_question
+  Output: Let's get a little fancy here and say we want to add a new column to all_students
+    that shows the difference between the math average and english average for each student,
+    for each year.  It's easy to add a column using dplyr.  Do you remember the command
+    for creating a new column?
+  AnswerChoices: mutate();group_by();select()
+  CorrectAnswer: mutate()
+  AnswerTests: omnitest(correctVal='mutate()')
+  Hint: 
+
+- Class: text
+  Output: OK, so we know we want to use mutate.  And we'll call the new column grade_difference.
+    Let's say we want to get the absolute value of the difference between math and English.
+    R is great at doing "vectorized" operations -- doing the same thing on a whole vector, 
+    or column.
+
+- Class: cmd_question
+  Output: |-
+    See if you can fill in the blanks to create a new data frame that starts from
+    all_students but adds a new column called grade_difference:
+    
+    all_students_v2 <- all_students %>% ______ (grade_difference = abs(Math_Avg - ________))
+  CorrectAnswer: all_students_v2 <- all_students %>% mutate(grade_difference = abs(Math_Avg - English_Avg))
+  AnswerTests: omnitest(correctExpr='all_students_v2 <- all_students %>% mutate(grade_difference = abs(Math_Avg - English_Avg))')
+  Hint: This is another tough one.  all_students_v2 <- all_students %>% mutate(grade_difference = abs(Math_Avg - English_Avg))
+
+
+- Class: cmd_question
+  Output: Take a quick peek at all_students_v2 by using head().
+  CorrectAnswer: head(all_students_v2)
+  AnswerTests: omnitest(correctExpr='head(all_students_v2)')
+  Hint: Try filling in the blank!  head(_______)
+  
+
+- Class: text
+  Output: Notice how when you do math where any of the expected numbers is an NA, the 
+    answer to the math is also NA.  
+
+
+- Class: text
+  Output: We're almost done with our merging practice!
+
+- Class: text
+  Output: Let's talk about when column names don't match.  What if you're trying to merge on student
+    names, but one data frame stores that in "Name" (like our math and English related data
+    frames) and the other stores it in "Student" (like our aces data frame)?
+
+- Class: text
+  Output: This is another place where specifying x and y in our merge command comes in handy.
+    We've used "by" frequently.  We can match on the Name field alone by using by="Name",
+    or we can match on a concatenation of several columns by doing something like 
+    by=c("Name", "Year"). 
+
+- Class: cmd_question
+  Output: |-
+    We can also indicate by.x and by.y parameters, where column names don't match.
+    To see what I mean, enter the following:
+    
+    grades_aces <- merge(x=all_students_v2, y=aces, by.x="Name", by.y="Student")
+  CorrectAnswer: grades_aces <- merge(x=all_students_v2, y=aces, by.x="Name", by.y="Student")
+  AnswerTests: omnitest(correctExpr='grades_aces <- merge(x=all_students_v2, y=aces, by.x="Name", by.y="Student")')
+  Hint: Just copy and paste!
+
+- Class: cmd_question
+  Output: Take a peek at grades_aces using View.
+  CorrectAnswer: View(grades_aces)
+  AnswerTests: omnitest(correctExpr='View(grades_aces)')
+  Hint: 
+
+- Class: text
+  Output: Well done!  We've accomplished quite a lot of learning on these practice datasets,
+    but let's get back to what we're really interested in -- our clinical data!
+    You still have the clinical datasets in your environment, but we've cluttered
+    up your environment with all these practice data frames.  Let's clean up!
+
+- Class: cmd_question
+  Output: |-
+    Issue the following to remove all the clutter from our students and grades:
+    
+    rm(list=c("aces", "all_students","all_students_v2", "english", "english_averages", 
+    "grades_aces", "math", "math_averages", "name_year_merge", "simple_merge"))
+  CorrectAnswer: rm(list=c("aces", "all_students","all_students_v2", "english", "english_averages", 
+    "grades_aces", "math", "math_averages", "name_year_merge", "simple_merge"))
+  AnswerTests: omnitest(correctExpr='rm(list=c("aces", "all_students","all_students_v2", "english", "english_averages", 
+    "grades_aces", "math", "math_averages", "name_year_merge", "simple_merge"))')
+  Hint: Don't forget to delete any | symbols!
+
+
+- Class: text
+  Output: Now that you've had all that practice, it's time to work on our clinical data!
+    We're really close to the end of this lesson, hang in there.
+
+- Class: cmd_question
+  Output: |-
+    We want to create a data frame called patient_data that merges the demographics
+    data frame with the meds_by_name data frame.  See if you can figure out how to complete
+    the command below and enter it!
+    
+    patient_data <- _______(demographics, ________, by="_______", all=TRUE)
+  CorrectAnswer: patient_data <- merge(demographics, meds_by_name, by="PAT_MRN", all=TRUE)
+  AnswerTests: omnitest(correctExpr='patient_data <- merge(demographics, meds_by_name, by="PAT_MRN", all=TRUE)')
+  Hint: You can do this!  The two data frames you're merging go as the first parameters to 
+    merge(), then you have to put the common column name in place (find that by looking
+    closely at the data in the Environment pane, and clicking the triangle beside each data 
+    frame you're interested in).
+
+- Class: mult_question
+  Output: Before you look at the data, a quick question.  If we had a patient who appeared
+    in the demographics data frame, but not in the pat_meds data frame, will
+    that patient appear in the patient_data data frame?
+  AnswerChoices: Yes, because I specified all=TRUE;Yes, because that's the default behavior of merge();No, because I did not define x and y.
+  CorrectAnswer: Yes, because I specified all=TRUE
+  AnswerTests: omnitest(correctVal='Yes, because I specified all=TRUE')
+  Hint: 
+
+- Class: cmd_question
+  Output: Great, you now have a combined data set.  Look at patient_data using View.
+  CorrectAnswer: View(patient_data)
+  AnswerTests: omnitest(correctExpr='View(patient_data)')
+  Hint: 
+
+- Class: text
+  Output: |-
+    You've done excellent work in this lesson, learning about:
+    
+    * merging data using merge()
+    
+    * how math with NA fields works
+    
+    * Cartesian products and the geometric growth of row numbers
+    
+    * mathematical aggregation like mean()
+
+- Class: video
+  Output: Say "Yes" to open a quick survey (less than five minutes, I promise!) in your web browser. 
+    It's important to us at Arcus that we only provide good quality 
+    education that's helpful to you.  This survey gives us important metrics for
+    knowing what works and what doesn't.
+  VideoLink: https://redcap.chop.edu/surveys/?s=LDAYNFYK97

@@ -1,0 +1,340 @@
+- Class: meta
+  Course: Clinical Data in R
+  Lesson: Relationships in Clinical Data
+  Author: Joy Payton
+  Type: Standard
+  Organization: Children's Hospital of Philadelphia, Arcus Program
+  Version: 2.4.3
+
+- Class: text
+  Output: |-
+    Thanks for taking the "Relationships in Clinical Data" lesson as part of the 
+    "Clinical Data in R" swirl course.  In this lesson, we'll talk about the different
+    relationships between clinical data and why it's important that you understand 
+    them.  
+
+    This lesson should take about 30-45 minutes to complete, and
+    at the end I'll invite you to take a < 5 minute survey about how you liked the
+    lesson.  Hit enter to keep going!
+
+    When I ask you to enter something, it's always good if you type it out yourself, 
+    rather than copy-paste, because it will help you remember.  But if you do choose to copy-paste,
+    be careful not to include any of the | symbols at the far left of the text.  That's 
+    just swirl's way of printing its text and making it clear that you're still in the lesson.
+    
+- Class: text
+  Output: If you've never used swirl, it's simple!  When you see a prompt with three dots, 
+    that's your invitation to hit enter to continue.  Do that now.
+    
+- Class: mult_question
+  Output: If I ask you a multiple choice question, you should enter the number before the 
+    answer you choose.  For example, which one of these is a fruit?
+  AnswerChoices: Apple;Sofa;Jacket
+  CorrectAnswer: Apple
+  AnswerTests: omnitest(correctVal='Apple')
+    
+- Class: cmd_question
+  Output: If you see a triangle prompt like this > it means you're supposed to enter a 
+    command.  I'll start off by giving you exactly what to type, and as you learn,
+    I'll reduce the hints I give and ask you to construct the right command for 
+    what you want to accomplish.  For example, type "3 > 5" below.
+  CorrectAnswer: 3 > 5
+  AnswerTests: omnitest(correctExpr='3 > 5')
+
+- Class: text
+  Output:  You can skip questions you're having
+    difficulty with by typing skip(), and you can leave this lesson entirely by
+    typing bye() or hitting escape.  
+
+- Class: text
+  Output: In this lesson, we will examine fabricated clinical data. 
+    You will work with data that looks like the same kind of data you 
+    might get from a query of CHOP's EHR.
+
+- Class: text
+  Output: Again, it's very important to point out that this is not 
+    *deidentified* data, but rather completely *fabricated* data.  
+    Got it?  Good!
+
+- Class: text
+  Output: Great, let's continue with the content of this lesson!
+
+- Class: text
+  Output: In database design, we use the term "one to many" to describe a relationship 
+    where a single entity of one type (say, a patient) could have a relationship to 
+    multiple entities of the same or another type (say, medications).  One patient 
+    could be prescribed zero, one, or  many medications.  That means the patient to 
+    medication relationship is one to many.  
+
+- Class: text
+  Output: Why does this matter to you?  Because one to many relationships occur frequently
+    in the medical record, and this causes a data pull from the clinical record
+    to have multiple rows per patient.  For example, let's consider the case of 
+    requesting some patients and their NSAID medication history.
+
+- Class: cmd_question
+  Output: I've stored some simple fake data in the object called pat_meds.  The data
+    stored in pat_meds includes patient MRN and any NSAIDS patients have received while 
+    inpatient.  View this data by typing View(pat_meds), and it will open in a new tab
+    in your data and script viewer pane.
+  CorrectAnswer: View(pat_meds)
+  AnswerTests: omnitest(correctExpr='View(pat_meds)')
+
+- Class: text
+  Output: Notice how some patients (like 507) only received one type of NSAID, while other
+    patients were given multiple kinds.  You could call this a one to many 
+    relationship, or even a "many to many" relationship, because
+    just as a single patient may be linked to several medications, a single 
+    medication will be linked to multiple different patients.
+
+- Class: mult_question
+  Output: Which of these relationships are one to many?
+  AnswerChoices: patient to date of birth; bed to unit; patient to surgery date
+  CorrectAnswer: patient to surgery date
+  AnswerTests: omnitest(correctVal='patient to surgery date')
+
+- Class: text
+  Output: That's right, a patient could have more than one surgery date in our medical
+    record, especially if they have a complex condition.  A bed, on the other hand,
+    is always related to only one unit, and a patient to only one date of birth.
+
+- Class: text
+  Output: We can see that the pat_med table has an efficient structure -- no empty values.
+    You might wonder, however, why we wouldn't just pivot the table so that there
+    would be a column for each medication, and some sort of value (maybe TRUE/FALSE?)
+    at each combination of patient and medication.  This would make our table
+    into a one-row-per-patient shape, which may be what you want for analysis 
+    purposes.
+
+- Class: text
+  Output: There are many reasons it might be a bad idea to store medications in that
+    kind of structure.  First of all, keep in mind that in the EHR, we're
+    recording medication administrations -- the patient ID, plus the date, time, dose, 
+    name, and administration method of a medication (plus other details as well).  
+    Each row in our pat_meds table represents a medication administration, NOT a patient.  
+
+- Class: text
+  Output: Can you imagine trying to store medication administrations per patient, where
+    each row was a patient?  You'd need many columns to represent different days,
+    different hours, different possible medications... it would be untenable!  At 
+    CHOP we administer thousands of drugs, in various doses, at various times, to 
+    various people.  The easiest way to track this is to treat each dose as an event,
+    where we log the important details, including who got the medicine.
+
+- Class: text
+  Output: As an aside, you should know that the CHOP medical record has thousands of 
+    tables, and in order to save space and make our database fast and efficient, we 
+    store data in as compact a way as possible.  For example, the medication orders
+    table holds a code number that identifies the medicine.  A code number is much shorter 
+    than writing out the whole medication name out.  That way, instead of each
+    order that asks that a patient receive "Ketorolac Tromethamine Inj 30 MG/ML" having
+    that whole phrase written out, we just include the code 454343 in that order.
+    
+- Class: text
+  Output: Then there's another table that contains all the medicines we administer, 
+    with the code number, the generic medicine name, and other medication details.  
+    
+- Class: text
+  Output: This way of making sure our data is broken up into compact, efficient tables 
+    that reference each other means that our medical record database is both 
+    relational (tables have values that refer to other tables) and normalized (we 
+    reduce bloat and repetition as much as possible).
+    
+- Class: text
+  Output: In our case, we omitted most of the details and just returned the patient ID and 
+    generic medication name for our pat_med table.  Still, the structure remains 
+    medication-administration-centric, not patient-centric.
+
+- Class: text
+  Output: In a typical medication data pull, you'd have dozens, possibly
+    hundreds of medications across your group of patients.  Is that true for our 
+    pat_med table?
+    
+- Class: cmd_question
+  Output: You can see all the unique values there are for the medication column in 
+    pat_meds by typing unique(pat_meds$GENERIC_NM).  Do that now.
+  CorrectAnswer: unique(pat_meds$GENERIC_NM)
+  AnswerTests: omnitest(correctExpr='unique(pat_meds$GENERIC_NM)')
+  Hint: Just copy and paste the command!
+
+- Class: cmd_question
+  Output: You can see a list of all the unique medications there are in the pat_meds 
+    table.  To be precise, there are 47.  In the future, if you just want the number
+    of distinct values, and you don't care about seeing a list of them, you can use
+    the length() command.  Type length(), and between the parenthesis, put in your 
+    most recent command (the one that starts with "unique").
+  CorrectAnswer: length(unique(pat_meds$GENERIC_NM))
+  AnswerTests: omnitest(correctExpr='length(unique(pat_meds$GENERIC_NM))')
+  Hint: Try length(unique(pat_meds$GENERIC_NM))
+
+- Class: text
+  Output: By the way, "length" only works for vectors (a one-dimensional listing of values).  If 
+    you need to see the length of, say, a data frame or matrix, you'll want to use
+    "nrow" to get the number of rows or "ncol" to get the number of columns!
+  
+- Class: text
+  Output:  If you were to try to "pivot" the pat_med table such that you'd end up 
+    with a table where each patient had a single row, and each column a medication, you'd 
+    have to include 47 medication columns to get all the information, and most cells 
+    would be empty, or contain "FALSE", or be otherwise somewhat pointless (since no 
+    patient receives all 47, and most receive just a handful of medications from our 
+    list).
+    
+- Class: text
+  Output: In database design, we try to reduce needless repetition of data, and we also 
+    want to avoid "sparsity" -- needless empty data.  This is because we want our database
+    to be fast and easy to fix (for example, if you have to fix a medication misspelling,
+    it's easier to do that if the medication name only appears once in a medication table, 
+    instead of being included by name in every single medication administration record).
+    
+- Class: text
+  Output: I hope that helps you understand why some tables come to you from your data analyst
+    in a format that has multiple rows per patient!  It's an efficient way to store
+    data, and once you understand why, it's not hard to then reshape that data in
+    the ways that will be more helpful to you later.
+    
+- Class: text
+  Output: As an example, for analysis purposes you almost always want to get down to one
+    row per patient.  That means you have to somehow simplify or combine the data
+    so that each patient's data can be included in one or a small handful of columns.
+
+- Class: text
+  Output: For example, you might want to have a column for each drug name, so that
+    you end up with an "ibuprofen" column, a "naproxen" column, etc., and not worry 
+    about doses or other details... just whether or not a patient received some kind
+    of administration of that medication.
+    
+- Class: text
+  Output: We'll work with how to do this kind of data manipulation in the next lesson,
+    "Aggregating Clinical Data (Getting to One Row)".  For now, let's keep looking at
+    data relationships in clinical data.
+    
+- Class: text
+  Output: Another kind of data relationship is what we call "one to one".  An example
+    of this would be a table that includes patient MRN and patient DOB.
+    
+
+- Class: cmd_question
+  Output: I've included demographics data in this lesson.  Check out the 
+    demographics data frame by typing the View command, using "demographics" as the name of the thing you
+    want to view, at the prompt below.
+  CorrectAnswer: View(demographics)
+  AnswerTests: omnitest(correctExpr='View(demographics)')
+  Hint: Try View(demographics).
+
+- Class: text
+  Output: You can see that the demographics data frame shows a one to one relationship, or
+    at least it seems to!
+  
+- Class: text
+  Output: Some relationships are one to one, as in the patient to date of birth 
+    relationship.  Each patient should have no more than one date of birth.  If two
+    different dates of birth are recorded, it indicates some kind of error.  Since
+    errors can and do appear in the medical record, it won't be surprising to find
+    that some one to one relationships actually end up being occasionally (and
+    erroneously) one to many.
+
+- Class: text
+  Output: In R, it's very easy to see if you have more than one row with the same
+    identifier, which may indicate a one to many relationship.
+
+- Class: cmd_question
+  Output: One of the easiest methods is to see how many "duplicated" values there are.
+    R's "duplicated" command will return "TRUE" for 2nd, 3rd, etc. values of 
+    data that repeats.  Try it on pat_meds by typing duplicated(pat_meds$PAT_MRN). 
+    You'll see a list of TRUE and FALSE values that represent whether each row of
+    the PAT_MRN column is a duplicated value.
+  CorrectAnswer: duplicated(pat_meds$PAT_MRN)
+  AnswerTests: omnitest(correctExpr='duplicated(pat_meds$PAT_MRN)')
+  Hint: Make sure your capitalization and spaces are exactly what I put above!
+
+- Class: cmd_question
+  Output: But going through that whole list of TRUE and FALSE values can be annoying.  We
+    can group all the TRUEs and all the FALSEs using the table command.  Type
+    table(duplicated(pat_meds$PAT_MRN)).
+  CorrectAnswer: table(duplicated(pat_meds$PAT_MRN))
+  AnswerTests: omnitest(correctExpr='table(duplicated(pat_meds$PAT_MRN))')
+  Hint: You can copy and paste the command!
+  
+- Class: text
+  Output: Don't forget that "duplicated" will only return TRUE for the second, third, etc. 
+    reuse of a value!
+
+- Class: mult_question
+  Output: If I type the command duplicated(c(3, 3, 5, 7, 5, 9)), what output can I expect?
+  AnswerChoices: FALSE TRUE FALSE FALSE TRUE FALSE; TRUE TRUE TRUE FALSE TRUE FALSE
+  CorrectAnswer: FALSE TRUE FALSE FALSE TRUE FALSE
+  AnswerTests: omnitest(correctVal='FALSE TRUE FALSE FALSE TRUE FALSE')
+  Hint: Remember that the "duplicated" command  does not consider the first use of a 
+    value to be a duplication!
+
+- Class: cmd_question
+  Output: Now that you understand how to use duplicated(), display a table that shows TRUE
+    and FALSE values for duplication in the demographics$PAT_MRN column.  You'll need to nest
+    the duplicated() command inside the table() command to do this, just like you did
+    for pat_meds.
+  CorrectAnswer: table(duplicated(demographics$PAT_MRN))
+  AnswerTests: omnitest(correctExpr='table(duplicated(demographics$PAT_MRN))')
+  Hint: Try table(duplicated(demographics$PAT_MRN)).
+
+- Class: text
+  Output: Great!  We don't see any TRUE values at all, which means we don't have any 
+    duplication in the PAT_MRN column of the demographics table.  There are no cases
+    of a single patient having more than one date of birth.  If we found a case
+    where that seemed to be true, we'd have to figure out which one was correct,
+    and suggest that something was wrong in the clinical record.
+
+- Class: text
+  Output: Alright, time to wrap up!  Let's do a couple of quick multiple choice questions
+    to consolidate our learning.
+
+- Class: mult_question
+  Output: If I want to list the distinct values in a vector, how can I do that?
+  AnswerChoices: duplicated();unique();length()
+  CorrectAnswer: unique()
+  AnswerTests: omnitest(correctVal='unique()')
+
+- Class: mult_question
+  Output: Why does the pat_meds table have more than one row for some patients?
+  AnswerChoices: All relationships in the medical record are many to many;
+    The patient to medication relationship is one to one;
+    The patient to medication relationship is one to many;
+    It's probably an error
+  CorrectAnswer: The patient to medication relationship is one to many
+  AnswerTests: omnitest(correctVal='The patient to medication relationship is one to many')
+
+- Class: mult_question
+  Output: What term describes a database design where tables have values that refer to 
+    other tables?
+  AnswerChoices: relational; one to many; de-normalized; clinical
+  CorrectAnswer: relational
+  AnswerTests: omnitest(correctVal='relational')
+
+
+- Class: mult_question
+  Output: What is sparsity?
+  AnswerChoices: When a dataset has lots of missing, empty, or pointless values;
+    When you reshape a dataset so that it becomes one row per person;
+    The command you use to count the number of rows in a table
+  CorrectAnswer: When a dataset has lots of missing, empty, or pointless values
+  AnswerTests: omnitest(correctVal='When a dataset has lots of missing, empty, or pointless values')
+
+- Class: text
+  Output: Great!  Not only have you learned about one to one and one to many relationships
+    in clinical data, you've also practiced how to use the unique(),
+    duplicated(), View(), table(), and length() commands.  You've also picked up
+    some basic database skills, like knowing that our clinical database is relational
+    and normalized, and why that's important.
+
+
+- Class: video
+  Output: Say "Yes" to open a quick survey (less than five minutes, I promise!) in your web browser. 
+    It's important to us at Arcus that we only provide good quality 
+    education that's helpful to you.  This survey gives us important metrics for
+    knowing what works and what doesn't.
+  VideoLink: https://redcap.chop.edu/surveys/?s=TJ73ETH9R8
+
+
+- Class: text
+  Output: In the next lesson, you'll take another look at the pat_meds table and reshape
+    it so that it will be most helpful for your analysis!

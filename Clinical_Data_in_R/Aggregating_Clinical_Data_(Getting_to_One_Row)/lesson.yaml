@@ -1,0 +1,640 @@
+- Class: meta
+  Course: Clinical Data in R
+  Lesson: Aggregating Clinical Data (Getting to One Row)
+  Author: Joy Payton
+  Type: Standard
+  Organization: Children's Hospital of Philadelphia, Arcus Program
+  Version: 2.4.3
+
+- Class: text
+  Output: |-
+    Thanks for taking the "Aggregating Clinical Data (Getting to One 
+    Row)" lesson as part of the "Clinical Data in R" swirl course.  In this 
+    lesson, we'll talk about the different relationships between clinical 
+    data and why it's important that you understand them.  
+
+    This lesson should take about 1 hour to complete, and
+    at the end I'll invite you to take a < 5 minute survey about how you liked the
+    lesson.  Hit enter to keep going!
+
+    When I ask you to enter something, it's always good if you type it out yourself, 
+    rather than copy-paste, because it will help you remember.  But if you do choose to copy-paste,
+    be careful not to include any of the | symbols at the far left of the text.  That's 
+    just swirl's way of printing its text and making it clear that you're still in the lesson.
+
+- Class: text
+  Output: If you've never used swirl, it's simple!  When you see a prompt with three dots, 
+    that's your invitation to hit enter to continue.  Do that now.
+    
+- Class: mult_question
+  Output: If I ask you a multiple choice question, you should enter the number before the 
+    answer you choose.  For example, which one of these is a fruit?
+  AnswerChoices: Banana;Sports Car;Keyboard
+  CorrectAnswer: Banana
+  AnswerTests: omnitest(correctVal='Banana')
+    
+- Class: cmd_question
+  Output: If you see a triangle prompt like this > it means you're supposed to enter a 
+    command.  I'll start off by giving you exactly what to type, and as you learn,
+    I'll reduce the hints I give and ask you to construct the right command for 
+    what you want to accomplish.  For example, type "4+7" below.
+  CorrectAnswer: 4 + 7
+  AnswerTests: omnitest(correctExpr='4+7')
+
+- Class: text
+  Output:  You can skip questions you're having
+    difficulty with by typing skip(), and you can leave this lesson entirely by
+    typing bye() or hitting escape.  
+
+- Class: text
+  Output: In this lesson, we will examine fabricated clinical data. 
+    You will work with data that looks like the same kind of data you 
+    might get from a query of CHOP's EHR.
+
+- Class: text
+  Output: Again, it's very important to point out that this is not 
+    *deidentified* data, but rather completely *fabricated* data.  
+    Got it?  Good!
+
+- Class: text
+  Output: In the last lesson, "Relationships in Clinical Data", we talked about the 
+    kinds of relationships that might exist in clinical data.  One to one relationships
+    exist where a patient can only have one value for a given fact (like date of birth),
+    while one to many relationships exist where patients can have more than one value
+    for a given fact (like admission date -- a patient may have several!).
+
+- Class: text
+  Output: The difficulty with one to many data is that it can make it feel tricky
+    to get your data back into a one row per patient shape for statistical 
+    analysis.
+
+- Class: text
+  Output: Let's take a closer look at the example data we used last time -- the 
+    pat_meds data frame.
+
+- Class: cmd_question
+  Output: Take a look at the first few lines of pat_meds by typing head(pat_meds). 
+    By default, head() shows the first six rows of a data frame.
+  CorrectAnswer: head(pat_meds)
+  AnswerTests: omnitest(correctExpr='head(pat_meds)') 
+
+- Class: cmd_question
+  Output: Also, take a quick look at the last few rows with tail(pat_meds). 
+  CorrectAnswer: tail(pat_meds)
+  AnswerTests: omnitest(correctExpr='tail(pat_meds)') 
+
+- Class: cmd_question
+  Output: As a refresher, use unique() to get a list of all the different medications
+    that are listed in pat_meds$GENERIC_NM.
+  CorrectAnswer: unique(pat_meds$GENERIC_NM)
+  AnswerTests: omnitest(correctExpr='unique(pat_meds$GENERIC_NM)') 
+
+- Class: text
+  Output: If we wanted to get pat_meds into a one row per patient shape, we'd need
+    to figure out how we wanted to do it.  If we just pivoted the data, so that 
+    each medication had a column, and each row was a patient, we could put something 
+    like "0" and "1" or FALSE and TRUE to mark each intersection of row (patient) and
+    column (medication).
+
+- Class: mult_question
+  Output: If we were to pivot in that way, with one column per medication, how many
+    columns would we need for the medication data?
+  AnswerChoices: 5;47;48
+  CorrectAnswer: 47
+  AnswerTests: omnitest(correctVal='47')
+
+- Class: text
+  Output: We have 47 separate drugs listed, many of them associated with just a couple of 
+    patients.  Having 47 columns for pretty sparse data isn't a great idea.  How can we
+    combine or simplify our data?
+
+- Class: text
+  Output: A lot depends on what we're studying.  If we're studying dose effects, we might
+    want to classify each drug according to our domain knowledge about what's considered
+    a high dose, and make a variable called "nsaid_dose" with the values of "zero", "low",
+    "moderate", "high".  Or maybe we're comparing the safety of different NSAID medications 
+    and would rather have a column for all the ibuprofens, a column for all the 
+    diclofenacs, etc.  Of course, we could just have a column that marks whether a patient 
+    was given any NSAID medications at all -- maybe it would be called "received_NSAID" and 
+    would have only TRUE and FALSE values.  It all depends on what our interest is.
+
+- Class: text
+  Output: Let's start by making a table that has just two columns.  The first will be
+    PAT_MRN, holding the patient identifier, and the second will be "received_NSAID", and
+    will have a TRUE or FALSE value.  To do this, we'll use a package known as "dplyr".
+
+- Class: text
+  Output: dplyr is a package that forms an important part of the "tidyverse", a system
+    of related packages written by Hadley Wickham, who is an important figure in the R
+    programming community.  It allows you do easily reshape, filter, and work with 
+    data frames in R.  I've already loaded dplyr for you!
+
+- Class: text
+  Output: First, we'll create a new data frame that contains only the unique MRNS (one
+    patient per row!) from our pat_meds data frame.  We can do that using a 
+    combination of the unique() command (which belongs to the R language itself
+    as part of "base R", or the stuff that comes along with R when you install it)
+    and the select() command from dplyr.  
+
+- Class: text
+  Output: Next you'll create a new data frame that contains only the unique patient MRNS from the 
+    pat_meds data frame.
+
+- Class: cmd_question
+  Output: Do this by typing simplified_pat_meds <- pat_meds %>% select(PAT_MRN) %>% unique().
+  CorrectAnswer: simplified_pat_meds <- pat_meds %>% select(PAT_MRN) %>% unique()
+  AnswerTests: omnitest(correctExpr='simplified_pat_meds <- pat_meds %>% select(PAT_MRN) %>% unique()');expr_creates_var('simplified_pat_meds')
+  Hint: Just copy and paste the command I asked you to enter!
+
+- Class: text
+  Output: What did that command do?  Well, you created a new object by giving it a name
+    (simplified_pat_meds) and using the assignment arrow (<-) to assign some data to it.
+    Specifically, you took the pat_meds data frame, "piped" that data (using the 
+    "%>%" operator) to the dplyr select() statement, where you said "I only want to select
+    the PAT_MRN column."  Then you piped *that* (the one-column data frame containing
+    just the PAT_MRN) to the unique() statement, which tosses out any duplicated rows.
+
+- Class: mult_question
+  Output: What is contained in simplified_pat_meds?
+  AnswerChoices: One column of data, which contains MRNS, and has duplicates;
+    One column of data, which contains MRNS, and has no duplicates;
+    Two columns of data, which contain MRNS and medications, with no duplicates
+  CorrectAnswer: One column of data, which contains MRNS, and has no duplicates
+  AnswerTests: omnitest(correctVal='One column of data, which contains MRNS, and has no duplicates')
+
+- Class: text
+  Output: We now have a one-column data frame that contains all the MRNS of the patients 
+    we know were treated at least once with an NSAID medication.  Since everyone
+    in our pat_meds table got at least one NSAID, we can easily create a column in
+    our new data frame, simplified_pat_meds, name it something like "received_NSAID",
+    and make that TRUE for each patient in the table.  We can create a new column
+    using mutate().
+
+- Class: cmd_question
+  Output: Type simplified_pat_meds <- simplified_pat_meds %>% mutate(received_NSAIDS = TRUE).
+  CorrectAnswer: simplified_pat_meds <- simplified_pat_meds %>% mutate(received_NSAIDS = TRUE)
+  AnswerTests: omnitest(correctExpr='simplified_pat_meds <- simplified_pat_meds %>% mutate(received_NSAIDS = TRUE)')
+
+- Class: text
+  Output: Great, you've created a one row per patient medication table using dplyr.  Let's 
+    check it out!
+
+- Class: cmd_question
+  Output: Type View(simplified_pat_meds) to look at your new table in the data and script 
+    pane of RStudio.
+  CorrectAnswer: View(simplified_pat_meds)
+  AnswerTests: omnitest(correctExpr='View(simplified_pat_meds)')
+  Hint: Just copy and paste!
+
+- Class: text
+  Output: That's a lot simpler, and it allowed you to create a very simple data frame with
+    no duplications.  That'll be easy to merge with other data!  But it *is* a bit
+    trivial, isn't it?  We should try some other approaches too.
+
+- Class: text
+  Output: What if we wanted to just have a list of medications, in a column named 
+    something like "NSAID_list", so that each patient had just one value, which 
+    included the list of all their NSAIDs?
+
+- Class: text
+  Output: We could do that in dplyr as well.  This time, we'll group our patients by their
+    MRNs, ask dplyr to make a comma delimited list of all their meds, and stick
+    that list into a new variable/column we call NSAID_list.
+
+- Class: cmd_question
+  Output: |-
+    The command?  
+    
+    list_pat_meds <- pat_meds %>% group_by(PAT_MRN) %>% summarise(NSAID_list = paste(GENERIC_NM, collapse = ", "))
+    
+    Issue that command now!
+  CorrectAnswer: list_pat_meds <- pat_meds %>% group_by(PAT_MRN) %>% summarise(NSAID_list = paste(GENERIC_NM, collapse = ", "))
+  AnswerTests: omnitest(correctExpr='list_pat_meds <- pat_meds %>% group_by(PAT_MRN) %>% summarise(NSAID_list = paste(GENERIC_NM, collapse = ", "))');expr_creates_var('list_pat_meds')
+  Hint: Just copy and paste!
+
+- Class: text
+  Output: |-
+    By the way, it might be neater and easier to read if you put in some line breaks,
+    especially if you're coding a script.  With dplyr (and all of the tidyverse
+    packages), I like to put a line break after each pipe (%>%) to make it clear what's 
+    going on at each step and not accidentally gloss over one in my haste.  So, you 
+    could also write and issue the command like this.
+    
+    
+    list_pat_meds <- pat_meds %>% 
+    
+                        group_by(PAT_MRN) %>% 
+                        
+                        summarise(NSAID_list = paste(GENERIC_NM, collapse = ", "))
+
+
+
+- Class: text
+  Output: You've learned a couple of new new dplyr skills, group_by() and summarise() 
+    (or "summarize" -- the American ending of the word is also ok to use, but if you 
+    ever Google it, it's probably worth looking for "summarise" first).
+
+- Class: text
+  Output: group_by() makes groups by whatever you designate to be the group variable (in our
+    case, we wanted to make groups where each group consisted of the same patient).
+    summarise() takes a group and does some data combining to get a single value for
+    that whole group.  You can do things like summarise by mean value, or max value, 
+    or do what we did, which is paste a bunch of stuff together, separated by a 
+    comma and a space.
+
+- Class: cmd_question
+  Output: Check out the list_pat_meds object using View!
+  CorrectAnswer: View(list_pat_meds)
+  AnswerTests: omnitest(correctExpr='View(list_pat_meds)')
+  Hint: Copy and paste will do wonders...
+
+- Class: text
+  Output: Well, we've preserved all our data, and gotten to one row per patient, but it'll
+    be pretty difficult to conduct analysis on complex text like we've just created.
+    It won't be easy, for example, to see group differences on patients who were prescribed
+    ibuprofen only as opposed to patients who were prescribed diclofenac only.
+    Let's try a new tactic, grouping by general medication name.
+
+- Class: text
+  Output: We notice that our medications seem to fall into five main types.  There's the 
+    ibuprofen administrations, plus diclofenac, ketorolac, indomethacin, and
+    naproxen.  Five columns isn't too bad, and if we have a column for each drug,
+    we can easily compare patients that have, say, ibuprofen only, to patients that 
+    have been given both ibuprofen and naproxen.  We won't get as many details as far
+    as dose (200mg, etc.) and vehicle (tablet? injection?), but we'll get a good overall
+    picture of our patients and their NSAID use while inpatient.
+
+
+- Class: text
+  Output: To do this, we'll use mutate() and grepl().  mutate() works as part of dplyr to 
+    create new columns, and grepl() does a logical string search to see if the 
+    pattern you specify appears in a given text, or if it is absent.
+
+- Class: text
+  Output: This command is long, so when you copy and paste it, you'll have to remove the 
+    upright pipe characters (|) that swirl uses to prefix the text I give you. Don't worry
+    about extra spaces or line breaks, though.  Whitespace differences are ok.
+
+- Class: cmd_question
+  Output: |-
+    This is what I want you to copy and paste below.  Make sure you remove the | 
+    character at the beginning of every line before you hit enter!
+    
+    
+    meds_by_name <- list_pat_meds %>% 
+    
+      mutate(ibuprofen = grepl("ibuprofen", NSAID_list, ignore.case = TRUE),
+      
+             naproxen = grepl("naproxen", NSAID_list, ignore.case = TRUE),
+             
+             ketorolac = grepl("ketorolac", NSAID_list, ignore.case = TRUE),
+             
+             diclofenac = grepl("diclofenac", NSAID_list, ignore.case = TRUE),
+             
+             indomethacin = grepl("indomethacin", NSAID_list, ignore.case = TRUE))
+  CorrectAnswer: meds_by_name <- list_pat_meds %>% 
+      mutate(ibuprofen = grepl("ibuprofen", NSAID_list, ignore.case = TRUE),
+             naproxen = grepl("naproxen", NSAID_list, ignore.case = TRUE),
+             ketorolac = grepl("ketorolac", NSAID_list, ignore.case = TRUE),
+             diclofenac = grepl("diclofenac", NSAID_list, ignore.case = TRUE),
+             indomethacin = grepl("indomethacin", NSAID_list, ignore.case = TRUE))
+  AnswerTests: omnitest(correctExpr='meds_by_name <- list_pat_meds %>% 
+      mutate(ibuprofen = grepl("ibuprofen", NSAID_list, ignore.case = TRUE),
+             naproxen = grepl("naproxen", NSAID_list, ignore.case = TRUE),
+             ketorolac = grepl("ketorolac", NSAID_list, ignore.case = TRUE),
+             diclofenac = grepl("diclofenac", NSAID_list, ignore.case = TRUE),
+             indomethacin = grepl("indomethacin", NSAID_list, ignore.case = TRUE))')
+  Hint: Copy and paste very carefully, removing the | character that swirl puts in!
+
+- Class: text
+  Output: What did we do just now?  We took the data frame that had the whole long list of
+    all the medications, and used that to create a new data frame with additional
+    columns, one per medication name, if that medication name appeared in the list
+    of NSAIDS prescribed to the patient.
+
+- Class: cmd_question
+  Output: Take a look at meds_by_name using the View command.
+  CorrectAnswer: View(meds_by_name)
+  AnswerTests: omnitest(correctExpr='View(meds_by_name)')
+  Hint: Try View(meds_by_name).
+
+- Class: text
+  Output: Well, now that we have successfully extracted the components out of each NSAID
+    list, we don't really need the actual column "NSAID_list" any more, right?
+    We can remove columns in much the same way as we can choose columns, using dplyr's
+    select() command.  In this case, we'll use a minus sign to indicate "not this one".
+
+- Class: cmd_question
+  Output: |-
+    To get rid of the "NSAID_list" variable in meds_by_name, issue the command
+    "meds_by_name <- meds_by_name %>% select(-NSAID_list)".
+  CorrectAnswer: meds_by_name <- meds_by_name %>% select(-NSAID_list)
+  AnswerTests: omnitest(correctExpr='meds_by_name <- meds_by_name %>% select(-NSAID_list)')
+  Hint: Copy and paste, don't let that closing period get in!
+
+- Class: text
+  Output: Now let's take a look at meds_by_name now that you've got a slim, trim, but
+    information-rich data frame!
+
+- Class: cmd_question
+  Output: Use View() to view meds_by_name.
+  CorrectAnswer: View(meds_by_name)
+  AnswerTests: omnitest(correctExpr='View(meds_by_name)')
+  Hint: You got this!
+
+- Class: text
+  Output: Let's consider the fact that sometimes, what you really want to do is pivot, so
+    that all your medications really do become their own column, even though that
+    means a sparse data frame (with lots of blank or essentially useless data), and
+    one that is very wide.  You really want to hone in on the
+    specifics, and you're willing to accept the consequences of having a wide, sparse
+    data frame.
+
+- Class: text
+  Output: We can do this in a number of ways.  R can be tricky sometimes because there are
+    multiple ways to do the same thing, and when you look at someone else's R code,
+    they may use an approach that's very different to your own.  I prefer to work
+    in the "tidyverse" and try to use tidyverse packages whenever possible.
+
+- Class: text
+  Output: The tidyverse has a package called "tidyr" which has some great tools, among
+    them the commands "spread" (which makes a long data frame wide) and "gather" 
+    (which does the reverse).  If you've ever worked with an "EAV" kind of table
+    (entity, attribute, value), you know what "long" data looks like.  I've already
+    loaded up tidyr for you.
+
+- Class: text
+  Output: To give you an example of long versus wide data, I've loaded up two objects for
+    you, called long_sample and wide_sample.
+
+- Class: cmd_question
+  Output: Take a look at long_sample using View.
+  CorrectAnswer: View(long_sample)
+  AnswerTests: omnitest(correctExpr='View(long_sample)')
+  Hint: Type View(long_sample)
+
+- Class: cmd_question
+  Output: Do the same thing with wide_sample.
+  CorrectAnswer: View(wide_sample)
+  AnswerTests: omnitest(correctExpr='View(wide_sample)')
+  Hint: Type View(wide_sample)
+
+- Class: text
+  Output: Both the wide and long versions of this data have exactly the same information, 
+    but they store it differently.
+
+- Class: text
+  Output: A wide table has each column assigned to a specific variable (like Name, Work 
+    Phone, has_asthma, population, IQ, etc.).  This is what we usually think of when we
+    think about tabular (table-shaped) data.  Rows represent entities we're measuring
+    (patients, rats, counties, etc.), and columns represent specific measurements.
+
+- Class: text
+  Output: A long data frame, on the other hand, is set up with "key-value" pairs,  or  as
+    an "Entity - Attribute - Value" table.  You might hear either term depending on
+    whom you're talking to, but the idea is the same.  One column is dedicated to
+    indicating which value we're talking about (the key), and another column gives the 
+    measurement of that key (the value).
+
+- Class: text
+  Output: The tidyr package can transform wide to long (using "gather"), or long to wide
+    (using "spread").
+
+- Class: cmd_question
+  Output: First, try to make your own "wide" data frame from long_sample.  You're going
+    to name your wide data frame my_wide_data, and assign to it 
+    spread(long_sample, key = "Phone Type", value = "Number").
+  CorrectAnswer: my_wide_data <- spread(long_sample, key = "Phone Type", value = "Number")
+  AnswerTests: omnitest(correctExpr='my_wide_data <- spread(long_sample, key = "Phone Type", value = "Number")')
+  Hint: Try my_wide_data <- spread(long_sample, key = "Phone Type", value = "Number")
+
+- Class: cmd_question
+  Output: Take a look at your data frame using View(my_wide_data).
+
+  CorrectAnswer: View(my_wide_data)
+  AnswerTests: omnitest(correctExpr='View(my_wide_data)')
+  Hint: Just copy and paste!
+
+- Class: mult_question
+  Output: Your wide table is a little different than the wide_sample.  How so?
+  AnswerChoices: Data is missing; Columns are in a different order; NAs have been replaced with space.
+  CorrectAnswer: Columns are in a different order
+  AnswerTests: omnitest(correctVal='Columns are in a different order')
+
+- Class: text
+  Output: Now, let's practice making long data from wide data!  We're going to use the
+    "gather" command from tidyr.
+
+- Class: cmd_question
+  Output: You probably already know this, but almost every R command has some sort of help
+    file you can display by using a question mark, followed by the command.  Try it
+    with gather by typing ?gather().
+  CorrectAnswer: ?gather()
+  AnswerTests: omnitest(correctExpr='?gather()')
+  Hint: Just copy and paste!
+
+- Class: text
+  Output: Help files may include the structure of the command, names and explanations of
+    parameters, links to other help files, and sample commands to help you figure out 
+    what to do.  The help file for gather() should be in the help pane to the right.  
+    Scroll through it to get an idea of what a help file might contain!
+    
+
+- Class: text
+  Output: |-
+    In the help file, we see that the structure of the gather() command is like this:
+    gather(data, key = "key", value = "value", ..., na.rm = FALSE,
+    convert = FALSE, factor_key = FALSE)
+
+- Class: text
+  Output: What can we glean from this structure?  Well, because some of the parameters (like 
+    key, value, na.rm, convert, and factor_key) are listed with an equals sign and 
+    some value, we know that gather() has some default settings.  For example, if we don't
+    tell gather() what we want the key to be called, it will just call it "key", because
+    that's the default value.  
+
+- Class: text
+  Output: On the other hand, data has no default, so we must indicate at least the data parameter
+    when we use gather().
+
+- Class: text
+  Output: The three dots are a bit confusing.  What are they all about?  When we read in the 
+    help file we realize that three dots stand for a "selection of columns."  Not all
+    columns in a data frame might need to be gathered.  
+
+- Class: text
+  Output: Let's say we want to take the wide_sample data frame and "gather" all of the columns 
+    (except for Name, obviously) into key-value pairs.
+
+- Class: text
+  Output: Our key will be called "Phone Type" and our value will be called "Number".
+
+- Class: text
+  Output: We can indicate "all columns except for Name" by using -Name.  We'll leave all
+    the other parameters alone, so that they use their default values.
+
+- Class: cmd_question
+  Output: |- 
+    At the prompt, make my_long_data, using gather() command using the data, key, value, and column 
+    selection we've just been talking about. It will look something like this:
+    my_long_data <- gather(data, key = "key", value = "value", column-selection).
+  CorrectAnswer: my_long_data <- gather(wide_sample, "Phone Type", "Number", -Name)
+  AnswerTests: any_of_exprs('my_long_data <- gather(wide_sample, "Phone Type", "Number", -Name)',
+    'my_long_data <- gather(wide_sample, key="Phone Type", value="Number", -Name)')
+  Hint: |-
+    Fill in the blanks here:  my_long_data <- gather(wide_sample, key="_______", value="________", -Name)
+
+- Class: cmd_question
+  Output: Great job, that was tricky!  Now take a look at my_long_data using View.
+  CorrectAnswer: View(my_long_data)
+  AnswerTests: omnitest(correctExpr='View(my_long_data)')
+  Hint: You got this, c'mon!
+
+- Class: mult_question
+  Output: The long data you constructed for my_long_data is different from long_sample.  How so?
+  AnswerChoices: my_long_data has rows with NA, long_sample does not;long_sample has rows with NA, my_long_data does not; my_long_data has incorrect data
+  CorrectAnswer: my_long_data has rows with NA, long_sample does not
+  AnswerTests: omnitest(correctVal='my_long_data has rows with NA, long_sample does not')
+  Hint: Take a look at the two data frames (they should be in tabs in the top left pane).
+
+- Class: cmd_question
+  Output: |-
+    Aha!  Now the "na.rm" parameter of gather() makes sense.  It defaults to FALSE, or
+    "Don't remove rows where the value will be NA".  But that's not terribly compact.
+    Please make a more compact version like this:
+    
+    my_compact_long_data <- gather(wide_sample, key="Phone Type", value = "Number", -Name, na.rm = TRUE)
+  CorrectAnswer: my_compact_long_data <- gather(wide_sample, key="Phone Type", value = "Number", -Name, na.rm = TRUE)
+  AnswerTests: omnitest(correctExpr='my_compact_long_data <- gather(wide_sample, key="Phone Type", value = "Number", -Name, na.rm = TRUE)')
+  Hint: Just copy and paste!
+
+- Class: text
+  Output: Great, after playing around with long and wide data formats, and using both 
+    spread() and gather(), you're ready to transform the pat_meds data.
+
+- Class: cmd_question
+  Output: It's been a while since we've looked at pat_meds.  Use View to look at it now.
+  CorrectAnswer: View(pat_meds)
+  AnswerTests: omnitest(correctExpr='View(pat_meds)')
+  Hint: View(pat_meds)
+
+- Class: mult_question
+  Output: pat_meds is kind of in a long format, but we don't really have a key and value column.
+    We have the PAT_MRN column, which is an entity identifier, not a key *or* a value.  Then
+    we have GENERIC_NM.  What kind of column is GENERIC_NM?  Key, or value?  Keep in mind 
+    that when you transform a long format dataset to wide format, the key column gives the
+    column headers for the wide format.
+  AnswerChoices: GENERIC_NM is a key column;GENERIC_NM is a value column
+  CorrectAnswer: GENERIC_NM is a key column
+  AnswerTests: omnitest(correctVal='GENERIC_NM is a key column')
+  Hint: Since you want the various drug names to become column headers, GENERIC_NM is a key column!
+
+- Class: text
+  Output: Well, then, what's our value column?
+
+
+- Class: mult_question
+  Output: If you go back to when you created the simplest aggregation of pat_meds, 
+    simplified_pat_meds, you added a column... do you remember what it was?
+  AnswerChoices: I added a column that was all TRUEs;I added a column that was all 1's;I added a column that contained the dose
+  CorrectAnswer: I added a column that was all TRUEs
+  AnswerTests: omnitest(correctVal='I added a column that was all TRUEs')
+
+
+- Class: text
+  Output: That's right!  There was an understanding that listing the drug meant the patient
+    received the drug, but there wasn't really an explicit value saying that.  So you
+    created a column titled "received_NSAIDS" that contained all TRUEs.  We can do the
+    same thing here.
+
+- Class: cmd_question
+  Output: |-
+    Create a new data frame called pat_meds_long using mutate().  You'll take pat_meds,
+    "pipe" it to mutate(), and within the mutate command, add a column called "received_med"
+    that is always TRUE.  
+    
+    Here's a hint.  When you created simplified_pat_meds, you issued 
+    this command: simplified_pat_meds <- simplified_pat_meds %>% mutate(received_NSAIDS = TRUE). 
+    
+    This time, you need to change some values.  Your command should look something like
+    this: pat_meds_long <- _________ %>% mutate(___________ = TRUE)
+  CorrectAnswer: pat_meds_long <- pat_meds %>% mutate(received_med = TRUE)
+  AnswerTests: omnitest(correctExpr='pat_meds_long <- pat_meds %>% mutate(received_med = TRUE)')
+  Hint: This is what I'm looking for -- pat_meds_long <- pat_meds %>% mutate(received_med = TRUE)
+
+- Class: cmd_question
+  Output: Now we have a true long dataset for patient medications, with a clear key column
+    (GENERIC_NM) and a clear value column (received_med). Take a look at your new data frame,
+    using View.
+  CorrectAnswer: View(pat_meds_long)
+  AnswerTests: omnitest(correctExpr='View(pat_meds_long)')
+  Hint: Try View(pat_meds_long)
+
+
+- Class: cmd_question
+  Output: |-
+    For your final act in this lesson, use spread() to create a new data frame, pat_meds_wide.  
+    
+    You'll do this by transforming pat_meds_long and indicating which is the key column and which is the
+    value column to "spread out" into columns with values.  Here's a format to get you started:
+    
+    pat_meds_wide <- spread(__________, key="_________", value="________")
+    
+  CorrectAnswer: pat_meds_wide <- spread(pat_meds_long, key="GENERIC_NM", value="received_med")
+  AnswerTests: omnitest(correctExpr='pat_meds_wide <- spread(pat_meds_long, key="GENERIC_NM", value="received_med")')
+  Hint: Try this -- pat_meds_wide <- spread(pat_meds_long, key="GENERIC_NM", value="received_med")
+
+- Class: cmd_question
+  Output: Fantastic!  Now take a look at that data using View(pat_meds_wide).
+  CorrectAnswer: View(pat_meds_wide)
+  AnswerTests: omnitest(correctExpr='View(pat_meds_wide)')
+  Hint: Just copy and paste the command.
+
+- Class: text
+  Output: See what I mean about sparsity?  It's a very sparse dataset, with mostly empty
+    data.
+
+- Class: text
+  Output: You've worked hard at data aggregation in this lesson.  You took patient medication
+    data, and transformed it four different ways.
+
+- Class: text
+  Output: For simplified_pat_meds, you just signaled that all of these patients did in fact
+    receive NSAIDS.  You got a bit more complex with list_pat_meds, which concatenated 
+    (stuck together) the various text strings for each drug, making sure there was a comma
+    and a space between each one.  You then used that stuck-together string to make 
+    meds_by_name, where you used a string search to see who received which drug family.
+    Finally, you created pat_meds_wide, which transformed each drug (all 47 of them!)
+    into a column.
+
+- Class: text
+  Output: As you can tell, the choice of how to aggregate data in order to make it one row
+    per person depends a lot on your research question.  We've considered the benefits
+    and detriments of several approaches and used dplyr and tidyr to create data
+    that preserves the data we need for our research, while turning the data into a
+    more convenient, one row per person format.
+
+- Class: text
+  Output: |-
+    Whew, you've learned a lot in this lesson:
+
+    * Understanding why data comes in the form of multiple rows per patient and why your research 
+    questions have a lot to do with the final form of the data
+
+    * How to concatenate strings
+
+    * How to work with dplyr and tidyr
+
+    * Terminology like "key-value pair"
+
+- Class: video
+  Output: Say "Yes" to open a quick survey (less than five minutes, I promise!) in your web browser. 
+    It's important to us at Arcus that we only provide good quality 
+    education that's helpful to you.  This survey gives us important metrics for
+    knowing what works and what doesn't.
+  VideoLink: https://redcap.chop.edu/surveys/?s=LNRCMP4PEC
+
+- Class: text
+  Output: In your next lesson, we'll talk about combining data.  Often, your data comes in multiple
+    files, but you want all that data together in a single table, so you can do analysis on it.  That's 
+    what you'll learn next!
